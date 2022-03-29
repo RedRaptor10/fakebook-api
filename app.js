@@ -7,8 +7,8 @@ var mongoose = require('mongoose');
 var nconf = require("nconf");
 var cors = require('cors');
 
-// Set up nconf
-nconf.argv().env().file({ file: './config.json' });
+// Passport
+require('./passport');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -16,6 +16,9 @@ var postsRouter = require('./routes/posts');
 var commentsRouter = require('./routes/comments');
 
 var app = express();
+
+// Set up nconf
+nconf.argv().env().file({ file: './config.json' });
 
 // Set up mongoose connection
 var mongoDB = 'mongodb+srv://' + nconf.get('MONGODB_USERNAME') + ':' + nconf.get('MONGODB_PASSWORD')

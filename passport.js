@@ -20,11 +20,11 @@ passport.use(new LocalStrategy({ passReqToCallback: true }, (req, username, pass
         if (!user) { return done(null, false, { message: 'Incorrect username.' }); }
 
         // Check if logging in from admin client (Only allow admins to log in)
-        if (req.body.admin && user.role != 'admin') { return done(null, false, { message: 'You are not an admin.' }); }
+        if (req.body.admin && user.admin == false) { return done(null, false, { message: 'You are not an admin.' }); }
 
         bcrypt.compare(password, user.password, (err, res) => {
             if (err) { return done(err); }
-            if (res) { return done(null, { id: user._id, username: user.username, role: user.role }, { message: 'Logged in successfully.' }); }
+            if (res) { return done(null, { id: user._id, username: user.username }, { message: 'Logged in successfully.' }); }
             else { return done(null, false, { message: 'Incorrect password.' }); }
         });
     });
