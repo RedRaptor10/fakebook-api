@@ -14,9 +14,10 @@ var UserSchema = new Schema({
     pic: { type: String },
     bio: { type: String, maxLength: 100 },
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    likes: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+    likedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+    likedComments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     public: { type: Boolean, required: true },
-    admin: { type: Boolean, default: false }
+    admin: { type: Boolean, default: false, required: true }
 });
 
 UserSchema
