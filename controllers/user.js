@@ -78,6 +78,63 @@ exports.createUser = [
     }
 ];
 
+// Update User
+exports.updateUser = [
+    // Process Sign Up
+    (req, res, next) => {
+        const user = new User({
+            username: req.body.username,
+            password: req.body.password,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            friends: req.body.friends,
+            likedPosts: req.body.likedPosts,
+            likedComments: req.body.likedComments,
+            public: req.body.public,
+            admin: req.body.admin
+        });
+
+        if (req.body.contact) { user.contact = req.body.contact; }
+        if (req.body.pic) { user.pic = req.body.pic; }
+        if (req.body.bio) { user.bio = req.body.bio; }
+
+        // Check if username already exists AND is not same as previous username
+        User.findOne({ 'username': user.username })
+        .exec(function(err, results) {
+            if (err) { return next(err); }
+            else if (results && results.username != req.params.username) {
+                res.json({ message: 'Username already exists.' });
+            } else {
+                // Hash password
+                bcrypt.hash(user.password, 10, (err, hashedPassword) => {
+                    if (err) { return next(err); }
+                    user.password = hashedPassword;
+
+                    // Clone user object & remove _id field for updating
+                    let userClone = JSON.parse(JSON.stringify(user));
+                    delete userClone._id;
+
+                    // Update user info from database
+                    User.findOneAndUpdate(
+                        { 'username': req.params.username }, // Filter
+                        userClone, // New values
+                        function(err) {
+                            if (err) { return next(err); }
+
+                            // Modify fields & remove password
+                            userClone.id = user._id;
+                            userClone.message = 'Success';
+                            delete userClone.password;
+
+                            res.json(userClone);
+                        }
+                    );
+                });
+            }
+        });
+    }
+];
+
 // Delete User
 exports.deleteUser = function(req, res, next) {
     User.findOneAndRemove({ 'username': req.params.username }, function(err) {

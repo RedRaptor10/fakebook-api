@@ -13,6 +13,9 @@ router.get('/:username', userController.getUser);
 // Create User
 router.post('/create', userController.createUser);
 
+// Update User
+router.post('/:username/update', userController.updateUser);
+
 // Delete User
 router.post('/:username/delete', userController.deleteUser);
 
