@@ -12,6 +12,7 @@ nconf.argv().env().file({ file: './config.json' });
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var postsRouter = require('./routes/posts');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use(cors());
 // Routes
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/posts', postsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

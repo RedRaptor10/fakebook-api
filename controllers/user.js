@@ -80,7 +80,7 @@ exports.createUser = [
 
 // Update User
 exports.updateUser = [
-    // Process Sign Up
+    // Process User Update
     (req, res, next) => {
         const user = new User({
             username: req.body.username,
@@ -121,12 +121,11 @@ exports.updateUser = [
                         function(err) {
                             if (err) { return next(err); }
 
-                            // Modify fields & remove password
+                            // Set id field & remove password
                             userClone.id = user._id;
-                            userClone.message = 'Success';
                             delete userClone.password;
 
-                            res.json(userClone);
+                            res.json({ user: userClone, message: 'Success' });
                         }
                     );
                 });
@@ -139,8 +138,6 @@ exports.updateUser = [
 exports.deleteUser = function(req, res, next) {
     User.findOneAndRemove({ 'username': req.params.username }, function(err) {
         if (err) { return next(err); }
-        res.json({
-            message: 'Success'
-        });
+        res.json({ message: 'Success' });
     });
 };
