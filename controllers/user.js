@@ -1,6 +1,16 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 
+// Check if user is authorized
+exports.auth = (req, res, next) => {
+    // Allow authorization if user is an admin OR if URL contains user's username
+    if (req.user.info.admin || req.user.info.username == req.params.username) {
+        return next();
+    } else {
+        return res.send('Unauthorized');
+    }
+};
+
 // Get Users
 exports.getUsers = function(req, res, next) {
     let sortby = '_id';

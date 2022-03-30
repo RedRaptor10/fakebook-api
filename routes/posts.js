@@ -1,5 +1,6 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
 
 // Controller
 const postController = require('../controllers/post');
@@ -15,18 +16,31 @@ router.get('/:postId', postController.getPost);
 router.get('/:postId/comments', commentController.getPostComments);
 
 // Create Post
-router.post('/create', postController.createPost);
+router.post('/create',
+    passport.authenticate('jwt', { session: false }),
+    postController.createPost);
 
 // Create Comment
-router.post('/:postId/comments/create', commentController.createComment);
+router.post('/:postId/comments/create',
+    passport.authenticate('jwt', { session: false }),
+    commentController.createComment);
 
 // Update Post
-router.post('/:postId/update', postController.updatePost);
+router.post('/:postId/update',
+    passport.authenticate('jwt', { session: false }),
+    postController.auth,
+    postController.updatePost);
 
 // Update Comment
-router.post('/:postId/comments/:commentId/update', commentController.updateComment);
+router.post('/:postId/comments/:commentId/update',
+    passport.authenticate('jwt', { session: false }),
+    commentController.auth,
+    commentController.updateComment);
 
 // Delete Post
-router.post('/:postId/delete', postController.deletePost);
+router.post('/:postId/delete',
+    passport.authenticate('jwt', { session: false }),
+    postController.auth,
+    postController.deletePost);
 
 module.exports = router;
