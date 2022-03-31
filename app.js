@@ -3,9 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var mongoose = require('mongoose');
-var nconf = require("nconf");
 var cors = require('cors');
+
+// Mongo
+require('./mongoConfig');
 
 // Passport
 require('./passport');
@@ -16,16 +17,6 @@ var postsRouter = require('./routes/posts');
 var commentsRouter = require('./routes/comments');
 
 var app = express();
-
-// Set up nconf
-nconf.argv().env().file({ file: './config.json' });
-
-// Set up mongoose connection
-var mongoDB = 'mongodb+srv://' + nconf.get('MONGODB_USERNAME') + ':' + nconf.get('MONGODB_PASSWORD')
-  + '@cluster0.keq1q.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(logger('dev'));
 app.use(express.json());
