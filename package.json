@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
-    "serverstart": "DEBUG=odinbook-api:* npm run devstart"
+    "serverstart": "DEBUG=odinbook-api:* npm run devstart",
+    "test": "jest"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -24,6 +25,9 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15"
+    "jest": "^27.5.1",
+    "mongodb-memory-server": "^8.4.2",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.2"
   }
 }
