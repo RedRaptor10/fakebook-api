@@ -47,6 +47,16 @@ router.post('/:postId/unlike',
     passport.authenticate('jwt', { session: false }),
     postController.unlikePost);
 
+// Like Comment
+router.post('/:postId/comments/:commentId/like',
+    passport.authenticate('jwt', { session: false }),
+    commentController.likeComment);
+
+// Unlike Comment
+router.post('/:postId/comments/:commentId/unlike',
+    passport.authenticate('jwt', { session: false }),
+    commentController.unlikeComment);
+
 // Delete Post
 router.post('/:postId/delete',
     passport.authenticate('jwt', { session: false }),

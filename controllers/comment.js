@@ -1,3 +1,4 @@
+const User = require('../models/user');
 const Comment = require('../models/comment');
 
 // Check if user is authorized
@@ -108,6 +109,48 @@ exports.updateComment = [
             res.json({
                 comment: results,
                 message: 'Success'
+            });
+        });
+    }
+];
+
+// Like Comment
+exports.likeComment = [
+    // Process Comment Like
+    (req, res, next) => {
+        // Add User id to Comment likes array
+        Comment.findByIdAndUpdate(req.params.commentId, { $addToSet: { likes: req.user.info.id } }, { new: true }, function(err, resultsComment) {
+            if (err) { return next(err); }
+
+            // Add Comment id to User likedComments array
+            User.findByIdAndUpdate(req.user.info.id, { $addToSet: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+                if (err) { return next(err); }
+                return res.json({
+                    comment: resultsComment,
+                    user: resultsUser,
+                    message: 'Success'
+                });
+            });
+        });
+    }
+];
+
+// Unlike Comment
+exports.unlikeComment = [
+    // Process Comment Unlike
+    (req, res, next) => {
+        // Remove User id from Comment likes array
+        Comment.findByIdAndUpdate(req.params.commentId, { $pull: { likes: req.user.info.id } }, { new: true }, function(err, resultsComment) {
+            if (err) { return next(err); }
+
+            // Remove Comment id from User likedPosts array
+            User.findByIdAndUpdate(req.user.info.id, { $pull: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+                if (err) { return next(err); }
+                return res.json({
+                    comment: resultsComment,
+                    user: resultsUser,
+                    message: 'Success'
+                });
             });
         });
     }

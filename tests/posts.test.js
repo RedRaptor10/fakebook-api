@@ -162,6 +162,24 @@ test('POST /api/posts/:postId/unlike', async () => {
     expect(response.body.user.likedPosts).toEqual([]);
 });
 
+// Like Comment
+test('POST /api/posts/:postId/comments/:commentId/like', async () => {
+    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/like')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.body.comment.likes).toEqual([user.id]);
+    expect(response.body.user.likedComments).toEqual([comment.id]);
+});
+
+// Unlike Comment
+test('POST /api/posts/:postId/comments/:commentId/unlike', async () => {
+    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/unlike')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.body.comment.likes).toEqual([]);
+    expect(response.body.user.likedComments).toEqual([]);
+});
+
 // Delete Post
 test('POST /api/posts/:postId/delete', async () => {
     const response = await request(app).post('/api/posts/' + post.id + '/delete')
