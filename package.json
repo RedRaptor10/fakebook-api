@@ -25,6 +25,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^6.1.1",
     "jest": "^27.5.1",
     "mongodb-memory-server": "^8.4.2",
     "nodemon": "^2.0.15",
