@@ -1,4 +1,5 @@
 const Post = require('../models/post');
+const User = require('../models/user');
 const Comment = require('../models/comment');
 
 // Check if user is authorized
@@ -88,7 +89,7 @@ exports.createPost = [
 exports.updatePost = [
     // Process Post Update
     (req, res, next) => {
-        const post = new Post ({
+        const post = new Post({
             _id: req.params.postId,
             author: req.body.author,
             date: req.body.date,
@@ -105,6 +106,48 @@ exports.updatePost = [
             res.json({
                 post: results,
                 message: 'Success'
+            });
+        });
+    }
+];
+
+// Like Post
+exports.likePost = [
+    // Process Post Like
+    (req, res, next) => {
+        // Add User id to Post likes array
+        Post.findByIdAndUpdate(req.params.postId, { $addToSet: { likes: req.user.info.id } }, { new: true }, function(err, resultsPost) {
+            if (err) { return next(err); }
+
+            // Add Post id to User likedPosts array
+            User.findByIdAndUpdate(req.user.info.id, { $addToSet: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
+                if (err) { return next(err); }
+                return res.json({
+                    post: resultsPost,
+                    user: resultsUser,
+                    message: 'Success'
+                });
+            });
+        });
+    }
+];
+
+// Unlike Post
+exports.unlikePost = [
+    // Process Post Unlike
+    (req, res, next) => {
+        // Remove User id from Post likes array
+        Post.findByIdAndUpdate(req.params.postId, { $pull: { likes: req.user.info.id } }, { new: true }, function(err, resultsPost) {
+            if (err) { return next(err); }
+
+            // Remove Post id from User likedPosts array
+            User.findByIdAndUpdate(req.user.info.id, { $pull: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
+                if (err) { return next(err); }
+                return res.json({
+                    post: resultsPost,
+                    user: resultsUser,
+                    message: 'Success'
+                });
             });
         });
     }

@@ -144,6 +144,24 @@ test('POST /api/posts/:postId/comments/:commentId/update', async () => {
     expect(response.body.comment.content).toEqual('test2');
 });
 
+// Like Post
+test('POST /api/posts/:postId/like', async () => {
+    const response = await request(app).post('/api/posts/' + post.id + '/like')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.body.post.likes).toEqual([user.id]);
+    expect(response.body.user.likedPosts).toEqual([post.id]);
+});
+
+// Unlike Post
+test('POST /api/posts/:postId/unlike', async () => {
+    const response = await request(app).post('/api/posts/' + post.id + '/unlike')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.body.post.likes).toEqual([]);
+    expect(response.body.user.likedPosts).toEqual([]);
+});
+
 // Delete Post
 test('POST /api/posts/:postId/delete', async () => {
     const response = await request(app).post('/api/posts/' + post.id + '/delete')
@@ -154,3 +172,14 @@ test('POST /api/posts/:postId/delete', async () => {
 afterAll(async () => {
     await stopMongoServer();
 });
+
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+  
+    // render the error page
+    res.status(err.status || 500);
+    res.send(err.message);
+  });
