@@ -8,6 +8,7 @@ require('../passport');
 const indexRouter = require('../routes/index');
 const usersRouter = require('../routes/users');
 const postsRouter = require('../routes/posts');
+const commentsRouter = require('../routes/comments');
 
 const app = express(); // Set up a separate express app
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);
+app.use('/api/comments', commentsRouter);
 
 let token;
 let user;
@@ -91,59 +93,26 @@ test('This is an async/await test', async () => {
     expect(response.headers['content-type']).toMatch(/json/);
 });*/
 
-// Get Posts
-test('GET /api/posts', async () => {
-    const response = await request(app).get('/api/posts');
+// Get Comments
+test('GET /api/comments', async () => {
+    const response = await request(app).get('/api/comments');
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
     expect(Array.isArray(response.body)).toBeTruthy();
     expect(response.body.length).toEqual(1);
 });
 
-// Get Post
-test('GET /api/posts/:postId', async () => {
-    const response = await request(app).get('/api/posts/' + post.id);
+// Get Comment
+test('GET /api/comments/:commentId', async () => {
+    const response = await request(app).get('/api/comments/' + comment.id);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body._id).toEqual(post.id);
-});
-
-// Get Post Comments
-test('GET /api/posts/:postId/comments', async () => {
-    const response = await request(app).get('/api/posts/' + post.id + '/comments');
-    expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.status).toEqual(200);
-    expect(Array.isArray(response.body)).toBeTruthy();
-    expect(response.body.length).toEqual(1);
-});
-
-// Update Post
-test('POST /api/posts/:postId/update', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/update')
-    .set('Authorization', 'Bearer ' + token)
-    .send({
-        content: 'test2',
-    });
-    expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.status).toEqual(200);
-    expect(response.body.post.content).toEqual('test2');
-});
-
-// Update Comment
-test('POST /api/posts/:postId/comments/:commentId/update', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/update')
-    .set('Authorization', 'Bearer ' + token)
-    .send({
-        content: 'test2',
-    });
-    expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.status).toEqual(200);
-    expect(response.body.comment.content).toEqual('test2');
+    expect(response.body._id).toEqual(comment.id);
 });
 
 // Delete Post
-test('POST /api/posts/:postId/delete', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/delete')
+test('POST /api/comments/:commentId/delete', async () => {
+    const response = await request(app).post('/api/comments/' + comment.id + '/delete')
     .set('Authorization', 'Bearer ' + token);
     expect(response.body.message).toEqual('Success');
 });
