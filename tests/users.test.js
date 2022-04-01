@@ -1,6 +1,7 @@
 const request = require('supertest');
 const express = require('express');
 const { startMongoServer, stopMongoServer } = require('./mongoConfigTesting');
+const seeds = require('./seeds');
 
 require('../passport');
 
@@ -19,7 +20,10 @@ let token;
 beforeAll(async () => {
     await startMongoServer();
 
-    // Insert mock data
+    // Populate database with mock data
+
+    // Seed database
+    seeds.seed(4, 0, 0);
 
     // Create User
     await request(app)
@@ -55,16 +59,16 @@ test('This is an async/await test', async () => {
     expect(response.headers['content-type']).toMatch(/json/);
 });*/
 
-// Get User
+// Get Users
 test('GET /api/users', async () => {
     const response = await request(app).get('/api/users');
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
     expect(Array.isArray(response.body)).toBeTruthy();
-    expect(response.body.length).toEqual(1);
+    expect(response.body.length).toEqual(5);
 });
 
-// Get Users
+// Get User
 test('GET /api/users/:username', async () => {
     const response = await request(app).get('/api/users/test');
     expect(response.headers['content-type']).toMatch(/json/);
