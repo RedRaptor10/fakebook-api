@@ -103,6 +103,7 @@ test('POST /api/users/:username/send-request', async () => {
     expect(response.body.user.requests.sent).toEqual([user2.id]);
 });
 
+
 // Delete Friend Request
 test('POST /api/users/:username/delete-request', async () => {
     const response = await request(app).post('/api/users/test2/delete-request')
@@ -111,6 +112,32 @@ test('POST /api/users/:username/delete-request', async () => {
     expect(response.status).toEqual(200);
     expect(response.body.user2.requests.received).toEqual([]);
     expect(response.body.user.requests.sent).toEqual([]);
+});
+
+// Add Friend
+test('POST /api/users/:username/add-friend', async () => {
+    // Send Friend Request
+    await request(app).post('/api/users/test2/send-request')
+    .set('Authorization', 'Bearer ' + token);
+
+    const response = await request(app).post('/api/users/test2/add-friend')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.user2.friends).toEqual([user.id]);
+    expect(response.body.user2.requests.received).toEqual([]);
+    expect(response.body.user.friends).toEqual([user2.id]);
+    expect(response.body.user.requests.sent).toEqual([]);
+});
+
+// Delete Friend
+test('POST /api/users/:username/delete-friend', async () => {
+    const response = await request(app).post('/api/users/test2/delete-friend')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.user2.friends).toEqual([]);
+    expect(response.body.user.friends).toEqual([]);
 });
 
 // Update User

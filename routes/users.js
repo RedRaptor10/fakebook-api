@@ -36,4 +36,14 @@ router.post('/:username/delete-request',
     passport.authenticate('jwt', { session: false }),
     userController.deleteRequest);
 
+// Add Friend
+router.post('/:username/add-friend',
+    passport.authenticate('jwt', { session: false }),
+    userController.addFriend);
+
+// Delete Friend
+router.post('/:username/delete-friend',
+    passport.authenticate('jwt', { session: false }),
+    userController.deleteFriend);
+
 module.exports = router;

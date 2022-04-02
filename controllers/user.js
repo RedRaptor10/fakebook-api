@@ -199,3 +199,45 @@ exports.deleteRequest = function(req, res, next) {
         });
     });
 };
+
+// Add Friend
+exports.addFriend = function(req, res, next) {
+    // Add User id to other User Friends array, then remove User id from other User Received Requests array
+    User.findOneAndUpdate({ username: req.params.username }, {
+        $addToSet: { friends: req.user.info.id },
+        $pull: { 'requests.received': req.user.info.id }
+    }, { new: true }, function(err, resultsUser2) {
+        if (err) { next(err); }
+
+        // Add other User id to User Friends array, then remove other User id from User Sent Requests array
+        User.findOneAndUpdate({ username: req.user.info.username }, {
+            $addToSet: { friends: resultsUser2._id },
+            $pull: { 'requests.sent': resultsUser2._id }
+        }, { new: true }, function(err, resultsUser) {
+            if (err) { next(err); }
+            res.json({
+                user: resultsUser,
+                user2: resultsUser2,
+                message: 'Success'
+            });
+        });
+    });
+};
+
+// Delete Friend
+exports.deleteFriend = function(req, res, next) {
+    // Delete User id from other User Friends array
+    User.findOneAndUpdate({ username: req.params.username }, { $pull: { friends: req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+        if (err) { next(err); }
+
+        // Delete other User id from User Friends array
+        User.findOneAndUpdate({ username: req.user.info.username }, { $pull: { friends: resultsUser2._id } }, { new: true }, function(err, resultsUser) {
+            if (err) { next(err); }
+            res.json({
+                user: resultsUser,
+                user2: resultsUser2,
+                message: 'Success'
+            });
+        });
+    });
+};
