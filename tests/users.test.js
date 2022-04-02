@@ -16,6 +16,8 @@ app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 
 let token;
+let user;
+let user2;
 
 beforeAll(async () => {
     await startMongoServer();
@@ -23,26 +25,41 @@ beforeAll(async () => {
     // Populate database with mock data
 
     // Seed database
-    seeds.seed(4, 0, 0);
+    seeds.seed(3, 0, 0);
 
-    // Create User
-    await request(app)
+    // Create Users
+    let response = await request(app)
     .post('/api/users/create')
     .send({
-        username: 'test',
-        password: 'test',
-        firstName: 'test',
-        lastName: 'test',
+        username: 'test1',
+        password: 'test1',
+        firstName: 'test1',
+        lastName: 'test1',
         public: true,
         admin: false
     });
 
+    user = response.body.user;
+
+    response = await request(app)
+    .post('/api/users/create')
+    .send({
+        username: 'test2',
+        password: 'test2',
+        firstName: 'test2',
+        lastName: 'test2',
+        public: true,
+        admin: false
+    });
+
+    user2 = response.body.user;
+
     // Log In
-    const response = await request(app)
+    response = await request(app)
     .post('/api/log-in')
     .send({
-        username: 'test',
-        password: 'test'
+        username: 'test1',
+        password: 'test1'
     });
 
     token = response.body.token;
@@ -70,28 +87,48 @@ test('GET /api/users', async () => {
 
 // Get User
 test('GET /api/users/:username', async () => {
-    const response = await request(app).get('/api/users/test');
+    const response = await request(app).get('/api/users/test1');
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.username).toEqual('test');
+    expect(response.body.username).toEqual('test1');
+});
+
+// Send Friend Request
+test('POST /api/users/:username/send-request', async () => {
+    const response = await request(app).post('/api/users/test2/send-request')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.user2.requests.received).toEqual([user.id]);
+    expect(response.body.user.requests.sent).toEqual([user2.id]);
+});
+
+// Delete Friend Request
+test('POST /api/users/:username/delete-request', async () => {
+    const response = await request(app).post('/api/users/test2/delete-request')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.user2.requests.received).toEqual([]);
+    expect(response.body.user.requests.sent).toEqual([]);
 });
 
 // Update User
 test('POST /api/users/:username/update', async () => {
-    const response = await request(app).post('/api/users/test/update')
+    const response = await request(app).post('/api/users/test1/update')
     .set('Authorization', 'Bearer ' + token)
     .send({
-        username: 'test2',
+        username: 'test',
         password: 'test'
     });
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.user.username).toEqual('test2');
+    expect(response.body.user.username).toEqual('test');
 });
 
 // Delete User
 test('POST /api/users/:username/delete', async () => {
-    const response = await request(app).post('/api/users/test/delete')
+    const response = await request(app).post('/api/users/test1/delete')
     .set('Authorization', 'Bearer ' + token);
     expect(response.body.message).toEqual('Success');
 });

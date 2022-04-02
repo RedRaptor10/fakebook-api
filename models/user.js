@@ -14,6 +14,10 @@ var UserSchema = new Schema({
     pic: { type: String },
     bio: { type: String, maxLength: 100 },
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    requests: {
+        sent: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+        received: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    },
     likedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
     likedComments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     public: { type: Boolean, required: true },

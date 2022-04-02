@@ -1,6 +1,5 @@
 const Post = require('../models/post');
 const User = require('../models/user');
-const Comment = require('../models/comment');
 
 // Check if user is authorized
 exports.auth = (req, res, next) => {

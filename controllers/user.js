@@ -46,6 +46,10 @@ exports.createUser = [
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             friends: [],
+            requests: {
+                sent: [],
+                received: []
+            },
             likedPosts: [],
             likedComments: [],
             public: req.body.public,
@@ -74,6 +78,10 @@ exports.createUser = [
                                 firstName: user.firstName,
                                 lastName: user.lastName,
                                 friends: user.friends,
+                                requests: {
+                                    sent: user.requests.sent,
+                                    received: user.requests.received
+                                },
                                 likedPosts: user.likedPosts,
                                 likedComments: user.likedComments,
                                 public: user.public,
@@ -107,6 +115,10 @@ exports.updateUser = [
         if (req.body.contact) { user.contact = req.body.contact; }
         if (req.body.pic) { user.pic = req.body.pic; }
         if (req.body.bio) { user.bio = req.body.bio; }
+        if (req.body.requests) {
+            user.requests.sent = req.body.requests.sent;
+            user.requests.received = req.body.requests.received;
+        }
 
         // Check if username already exists AND is not same as previous username
         User.findOne({ 'username': user.username })
@@ -149,5 +161,41 @@ exports.deleteUser = function(req, res, next) {
     User.findOneAndRemove({ 'username': req.params.username }, function(err) {
         if (err) { return next(err); }
         res.json({ message: 'Success' });
+    });
+};
+
+// Send Friend Request
+exports.sendRequest = function(req, res, next) {
+    // Add User id to other User Received Requests array
+    User.findOneAndUpdate({ username: req.params.username }, { $addToSet: { 'requests.received': req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+        if (err) { next(err); }
+
+        // Add other User id to User Sent Requests array
+        User.findOneAndUpdate({ username: req.user.info.username }, { $addToSet: { 'requests.sent': resultsUser2._id } }, { new: true }, function(err, resultsUser) {
+            if (err) { next(err); }
+            res.json({
+                user: resultsUser,
+                user2: resultsUser2,
+                message: 'Success'
+            });
+        });
+    });
+};
+
+// Delete Friend Request
+exports.deleteRequest = function(req, res, next) {
+    // Remove User id from other User Received Requests array
+    User.findOneAndUpdate({ username: req.params.username }, { $pull: { 'requests.received': req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+        if (err) { next(err); }
+
+        // Remove other User id from User Sent Requests array
+        User.findOneAndUpdate({ username: req.user.info.username }, { $pull: { 'requests.sent': resultsUser2._id } }, { new: true }, function(err, resultsUser) {
+            if (err) { next(err); }
+            res.json({
+                user: resultsUser,
+                user2: resultsUser2,
+                message: 'Success'
+            });
+        });
     });
 };
