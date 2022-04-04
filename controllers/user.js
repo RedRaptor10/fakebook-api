@@ -41,6 +41,7 @@ exports.createUser = [
     // Process Sign Up
     (req, res, next) => {
         const user = new User({
+            email: req.body.email,
             username: req.body.username,
             password: req.body.password,
             firstName: req.body.firstName,
@@ -74,6 +75,7 @@ exports.createUser = [
                         res.json({
                             user: {
                                 id: user._id,
+                                email: user.email,
                                 username: user.username,
                                 firstName: user.firstName,
                                 lastName: user.lastName,
@@ -101,6 +103,7 @@ exports.updateUser = [
     // Process User Update
     (req, res, next) => {
         const user = new User({
+            email: req.body.email,
             username: req.body.username,
             password: req.body.password,
             firstName: req.body.firstName,

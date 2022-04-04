@@ -36,6 +36,7 @@ beforeAll(async () => {
     let response = await request(app)
     .post('/api/users/create')
     .send({
+        email: 'test@test.com',
         username: 'test',
         password: 'test',
         firstName: 'test',
@@ -50,7 +51,7 @@ beforeAll(async () => {
     response = await request(app)
     .post('/api/log-in')
     .send({
-        username: 'test',
+        email: 'test@test.com',
         password: 'test'
     });
 

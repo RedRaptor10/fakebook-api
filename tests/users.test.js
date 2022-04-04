@@ -31,6 +31,7 @@ beforeAll(async () => {
     let response = await request(app)
     .post('/api/users/create')
     .send({
+        email: 'test1@test.com',
         username: 'test1',
         password: 'test1',
         firstName: 'test1',
@@ -44,6 +45,7 @@ beforeAll(async () => {
     response = await request(app)
     .post('/api/users/create')
     .send({
+        email: 'test2@test.com',
         username: 'test2',
         password: 'test2',
         firstName: 'test2',
@@ -58,7 +60,7 @@ beforeAll(async () => {
     response = await request(app)
     .post('/api/log-in')
     .send({
-        username: 'test1',
+        email: 'test1@test.com',
         password: 'test1'
     });
 
@@ -102,7 +104,6 @@ test('POST /api/users/:username/send-request', async () => {
     expect(response.body.user2.requests.received).toEqual([user.id]);
     expect(response.body.user.requests.sent).toEqual([user2.id]);
 });
-
 
 // Delete Friend Request
 test('POST /api/users/:username/delete-request', async () => {

@@ -5,6 +5,7 @@ const Comment = require('../models/comment');
 
 const generateUser = () =>  {
     return new User({
+        email: faker.internet.email(),
         username: faker.internet.userName(),
         password: faker.datatype.string(),
         firstName: faker.name.firstName(),

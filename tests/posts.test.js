@@ -34,6 +34,7 @@ beforeAll(async () => {
     let response = await request(app)
     .post('/api/users/create')
     .send({
+        email: 'test@test.com',
         username: 'test',
         password: 'test',
         firstName: 'test',
@@ -48,7 +49,7 @@ beforeAll(async () => {
     response = await request(app)
     .post('/api/log-in')
     .send({
-        username: 'test',
+        email: 'test@test.com',
         password: 'test'
     });
 
@@ -190,14 +191,3 @@ test('POST /api/posts/:postId/delete', async () => {
 afterAll(async () => {
     await stopMongoServer();
 });
-
-// error handler
-app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-  
-    // render the error page
-    res.status(err.status || 500);
-    res.send(err.message);
-  });

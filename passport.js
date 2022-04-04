@@ -10,21 +10,26 @@ const nconf = require('nconf');
 // Set up nconf
 nconf.argv().env().file({ file: './config.json' });
 
+const localOptions = {
+    usernameField: 'email', // Use email as username
+    passReqToCallback: true
+};
+
 // Local Strategy used for initial log in
 // NOTE: "done" is an internal passport method, taking in the parameters (err, user, info)
 // NOTE: Must include { passReqToCallback: true } and pass req as 1st parameter to read request object
-passport.use(new LocalStrategy({ passReqToCallback: true }, (req, username, password, done) => {
-    // Check if username & password matches in database
-    User.findOne({ username }, (err, user) => {
+passport.use(new LocalStrategy(localOptions, (req, email, password, done) => {
+    // Check if email & password matches in database
+    User.findOne({ email }, (err, user) => {
         if (err) { return done(err); }
-        if (!user) { return done(null, false, { message: 'Incorrect username.' }); }
+        if (!user) { return done(null, false, { message: 'Incorrect email.' }); }
 
         // Check if logging in from admin client (Only allow admins to log in)
         if (req.body.admin && user.admin == false) { return done(null, false, { message: 'You are not an admin.' }); }
 
         bcrypt.compare(password, user.password, (err, res) => {
             if (err) { return done(err); }
-            if (res) { return done(null, { id: user._id, username: user.username }, { message: 'Logged in successfully.' }); }
+            if (res) { return done(null, { id: user._id, email: user.email, username: user.username }, { message: 'Logged in successfully.' }); }
             else { return done(null, false, { message: 'Incorrect password.' }); }
         });
     });
