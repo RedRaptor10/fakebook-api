@@ -37,6 +37,11 @@ router.post('/:postId/comments/:commentId/update',
     commentController.auth,
     commentController.updateComment);
 
+// Get User Posts
+router.get('/users/:userId',
+    passport.authenticate('jwt', { session: false }),
+    postController.getUserPosts);
+
 // Like Post
 router.post('/:postId/like',
     passport.authenticate('jwt', { session: false }),

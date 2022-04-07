@@ -40,6 +40,21 @@ exports.getPosts = function(req, res, next) {
     });
 };
 
+// Get User Posts
+exports.getUserPosts = function(req, res, next) {
+    let sortby = '_id';
+    let orderby = 'ascending';
+
+    if (req.query.sort == 'date') { sortby = 'date'; }
+    if (req.query.order == 'desc') { orderby = 'descending'; }
+
+    Post.find({ 'author': req.params.userId }, { 'password': 0 }) // Exclude password from db query
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        res.json(results);
+    });
+};
+
 // Get Post
 exports.getPost = function(req, res, next) {
     Post.findOne({ '_id': req.params.postId })
