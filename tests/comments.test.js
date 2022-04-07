@@ -62,7 +62,7 @@ beforeAll(async () => {
     .post('/api/posts/create')
     .set('Authorization', 'Bearer ' + token)
     .send({
-        author: user.id,
+        author: user._id,
         date: new Date(),
         content: 'test',
         image: 'test',
@@ -73,11 +73,11 @@ beforeAll(async () => {
 
     // Create Comment
     response = await request(app)
-    .post('/api/posts/' + post.id + '/comments/create')
+    .post('/api/posts/' + post._id + '/comments/create')
     .set('Authorization', 'Bearer ' + token)
     .send({
-        post: post.id,
-        author: user.id,
+        post: post._id,
+        author: user._id,
         date: new Date(),
         content: 'test',
         public: true
@@ -108,15 +108,15 @@ test('GET /api/comments', async () => {
 
 // Get Comment
 test('GET /api/comments/:commentId', async () => {
-    const response = await request(app).get('/api/comments/' + comment.id);
+    const response = await request(app).get('/api/comments/' + comment._id);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body._id).toEqual(comment.id);
+    expect(response.body._id).toEqual(comment._id);
 });
 
 // Delete Post
 test('POST /api/comments/:commentId/delete', async () => {
-    const response = await request(app).post('/api/comments/' + comment.id + '/delete')
+    const response = await request(app).post('/api/comments/' + comment._id + '/delete')
     .set('Authorization', 'Bearer ' + token);
     expect(response.body.message).toEqual('Success');
 });

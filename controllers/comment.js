@@ -78,7 +78,7 @@ exports.createComment = [
             if (err) { return next(err); }
             res.json({
                 comment: {
-                    'id': comment._id,
+                    _id: comment._id,
                     post: comment.post._id,
                     author: comment.author._id,
                     date: comment.date,
@@ -119,11 +119,11 @@ exports.likeComment = [
     // Process Comment Like
     (req, res, next) => {
         // Add User id to Comment likes array
-        Comment.findByIdAndUpdate(req.params.commentId, { $addToSet: { likes: req.user.info.id } }, { new: true }, function(err, resultsComment) {
+        Comment.findByIdAndUpdate(req.params.commentId, { $addToSet: { likes: req.user.info._id } }, { new: true }, function(err, resultsComment) {
             if (err) { return next(err); }
 
             // Add Comment id to User likedComments array
-            User.findByIdAndUpdate(req.user.info.id, { $addToSet: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+            User.findByIdAndUpdate(req.user.info._id, { $addToSet: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
                 if (err) { return next(err); }
                 return res.json({
                     comment: resultsComment,
@@ -140,11 +140,11 @@ exports.unlikeComment = [
     // Process Comment Unlike
     (req, res, next) => {
         // Remove User id from Comment likes array
-        Comment.findByIdAndUpdate(req.params.commentId, { $pull: { likes: req.user.info.id } }, { new: true }, function(err, resultsComment) {
+        Comment.findByIdAndUpdate(req.params.commentId, { $pull: { likes: req.user.info._id } }, { new: true }, function(err, resultsComment) {
             if (err) { return next(err); }
 
             // Remove Comment id from User likedPosts array
-            User.findByIdAndUpdate(req.user.info.id, { $pull: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+            User.findByIdAndUpdate(req.user.info._id, { $pull: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
                 if (err) { return next(err); }
                 return res.json({
                     comment: resultsComment,

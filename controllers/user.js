@@ -32,12 +32,7 @@ exports.getUser = function(req, res, next) {
     User.findOne({ 'username': req.params.username }, { 'password': 0 }) // Exclude password from db query
     .exec(function(err, results) {
         if (err) { return next(err); }
-
-	// Clone results (Replaces '_id' field with 'id')
-	let resultsClone = JSON.parse(JSON.stringify(results));
-	resultsClone.id = results._id;
-	delete resultsClone._id;
-        res.json(resultsClone);
+        res.json(results);
     });
 };
 
@@ -79,7 +74,7 @@ exports.createUser = [
                         if (err) { return next(err); }
                         res.json({
                             user: {
-                                id: user._id,
+                                _id: user._id,
                                 email: user.email,
                                 username: user.username,
                                 firstName: user.firstName,
@@ -151,8 +146,8 @@ exports.updateUser = [
                         function(err) {
                             if (err) { return next(err); }
 
-                            // Set id field & remove password
-                            userClone.id = user._id;
+                            // Reset _id field & remove password
+                            userClone._id = user._id;
                             delete userClone.password;
 
                             res.json({ user: userClone, message: 'Success' });
@@ -175,7 +170,7 @@ exports.deleteUser = function(req, res, next) {
 // Send Friend Request
 exports.sendRequest = function(req, res, next) {
     // Add User id to other User Received Requests array
-    User.findOneAndUpdate({ username: req.params.username }, { $addToSet: { 'requests.received': req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+    User.findOneAndUpdate({ username: req.params.username }, { $addToSet: { 'requests.received': req.user.info._id } }, { new: true }, function(err, resultsUser2) {
         if (err) { next(err); }
 
         // Add other User id to User Sent Requests array
@@ -193,7 +188,7 @@ exports.sendRequest = function(req, res, next) {
 // Delete Friend Request
 exports.deleteRequest = function(req, res, next) {
     // Remove User id from other User Received Requests array
-    User.findOneAndUpdate({ username: req.params.username }, { $pull: { 'requests.received': req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+    User.findOneAndUpdate({ username: req.params.username }, { $pull: { 'requests.received': req.user.info._id } }, { new: true }, function(err, resultsUser2) {
         if (err) { next(err); }
 
         // Remove other User id from User Sent Requests array
@@ -212,8 +207,8 @@ exports.deleteRequest = function(req, res, next) {
 exports.addFriend = function(req, res, next) {
     // Add User id to other User Friends array, then remove User id from other User Received Requests array
     User.findOneAndUpdate({ username: req.params.username }, {
-        $addToSet: { friends: req.user.info.id },
-        $pull: { 'requests.received': req.user.info.id }
+        $addToSet: { friends: req.user.info._id },
+        $pull: { 'requests.received': req.user.info._id }
     }, { new: true }, function(err, resultsUser2) {
         if (err) { next(err); }
 
@@ -235,7 +230,7 @@ exports.addFriend = function(req, res, next) {
 // Delete Friend
 exports.deleteFriend = function(req, res, next) {
     // Delete User id from other User Friends array
-    User.findOneAndUpdate({ username: req.params.username }, { $pull: { friends: req.user.info.id } }, { new: true }, function(err, resultsUser2) {
+    User.findOneAndUpdate({ username: req.params.username }, { $pull: { friends: req.user.info._id } }, { new: true }, function(err, resultsUser2) {
         if (err) { next(err); }
 
         // Delete other User id from User Friends array

@@ -84,7 +84,7 @@ exports.createPost = [
             if (err) { return next(err); }
             res.json({
                 post: {
-                    'id': post._id,
+                    _id: post._id,
                     author: post.author._id,
                     date: post.date,
                     content: post.content,
@@ -130,11 +130,11 @@ exports.likePost = [
     // Process Post Like
     (req, res, next) => {
         // Add User id to Post likes array
-        Post.findByIdAndUpdate(req.params.postId, { $addToSet: { likes: req.user.info.id } }, { new: true }, function(err, resultsPost) {
+        Post.findByIdAndUpdate(req.params.postId, { $addToSet: { likes: req.user.info._id } }, { new: true }, function(err, resultsPost) {
             if (err) { return next(err); }
 
             // Add Post id to User likedPosts array
-            User.findByIdAndUpdate(req.user.info.id, { $addToSet: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
+            User.findByIdAndUpdate(req.user.info._id, { $addToSet: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
                 if (err) { return next(err); }
                 return res.json({
                     post: resultsPost,
@@ -151,11 +151,11 @@ exports.unlikePost = [
     // Process Post Unlike
     (req, res, next) => {
         // Remove User id from Post likes array
-        Post.findByIdAndUpdate(req.params.postId, { $pull: { likes: req.user.info.id } }, { new: true }, function(err, resultsPost) {
+        Post.findByIdAndUpdate(req.params.postId, { $pull: { likes: req.user.info._id } }, { new: true }, function(err, resultsPost) {
             if (err) { return next(err); }
 
             // Remove Post id from User likedPosts array
-            User.findByIdAndUpdate(req.user.info.id, { $pull: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
+            User.findByIdAndUpdate(req.user.info._id, { $pull: { likedPosts: req.params.postId } }, { new: true }, function(err, resultsUser) {
                 if (err) { return next(err); }
                 return res.json({
                     post: resultsPost,

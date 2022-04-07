@@ -17,7 +17,7 @@ const generateUser = () =>  {
 
 const generatePost = (user) =>  {
     return new Post({
-        author: user.id,
+        author: user._id,
         date: faker.date.between(),
         content: faker.random.words(),
         public: true
@@ -26,8 +26,8 @@ const generatePost = (user) =>  {
 
 const generateComment = (user, post) =>  {
     return new Comment({
-        post: post.id,
-        author: user.id,
+        post: post._id,
+        author: user._id,
         date: faker.date.between(),
         content: faker.random.words(),
         public: true

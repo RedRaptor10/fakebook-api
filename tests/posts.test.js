@@ -60,7 +60,7 @@ beforeAll(async () => {
     .post('/api/posts/create')
     .set('Authorization', 'Bearer ' + token)
     .send({
-        author: user.id,
+        author: user._id,
         date: new Date(),
         content: 'test',
         image: 'test',
@@ -71,11 +71,11 @@ beforeAll(async () => {
 
     // Create Comment
     response = await request(app)
-    .post('/api/posts/' + post.id + '/comments/create')
+    .post('/api/posts/' + post._id + '/comments/create')
     .set('Authorization', 'Bearer ' + token)
     .send({
-        post: post.id,
-        author: user.id,
+        post: post._id,
+        author: user._id,
         date: new Date(),
         content: 'test',
         public: true
@@ -106,15 +106,15 @@ test('GET /api/posts', async () => {
 
 // Get Post
 test('GET /api/posts/:postId', async () => {
-    const response = await request(app).get('/api/posts/' + post.id);
+    const response = await request(app).get('/api/posts/' + post._id);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body._id).toEqual(post.id);
+    expect(response.body._id).toEqual(post._id);
 });
 
 // Get Post Comments
 test('GET /api/posts/:postId/comments', async () => {
-    const response = await request(app).get('/api/posts/' + post.id + '/comments');
+    const response = await request(app).get('/api/posts/' + post._id + '/comments');
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
     expect(Array.isArray(response.body)).toBeTruthy();
@@ -123,7 +123,7 @@ test('GET /api/posts/:postId/comments', async () => {
 
 // Update Post
 test('POST /api/posts/:postId/update', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/update')
+    const response = await request(app).post('/api/posts/' + post._id + '/update')
     .set('Authorization', 'Bearer ' + token)
     .send({
         content: 'test2',
@@ -135,7 +135,7 @@ test('POST /api/posts/:postId/update', async () => {
 
 // Update Comment
 test('POST /api/posts/:postId/comments/:commentId/update', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/update')
+    const response = await request(app).post('/api/posts/' + post._id + '/comments/' + comment._id + '/update')
     .set('Authorization', 'Bearer ' + token)
     .send({
         content: 'test2',
@@ -147,16 +147,16 @@ test('POST /api/posts/:postId/comments/:commentId/update', async () => {
 
 // Like Post
 test('POST /api/posts/:postId/like', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/like')
+    const response = await request(app).post('/api/posts/' + post._id + '/like')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.body.post.likes).toEqual([user.id]);
-    expect(response.body.user.likedPosts).toEqual([post.id]);
+    expect(response.body.post.likes).toEqual([user._id]);
+    expect(response.body.user.likedPosts).toEqual([post._id]);
 });
 
 // Unlike Post
 test('POST /api/posts/:postId/unlike', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/unlike')
+    const response = await request(app).post('/api/posts/' + post._id + '/unlike')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.post.likes).toEqual([]);
@@ -165,16 +165,16 @@ test('POST /api/posts/:postId/unlike', async () => {
 
 // Like Comment
 test('POST /api/posts/:postId/comments/:commentId/like', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/like')
+    const response = await request(app).post('/api/posts/' + post._id + '/comments/' + comment._id + '/like')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.body.comment.likes).toEqual([user.id]);
-    expect(response.body.user.likedComments).toEqual([comment.id]);
+    expect(response.body.comment.likes).toEqual([user._id]);
+    expect(response.body.user.likedComments).toEqual([comment._id]);
 });
 
 // Unlike Comment
 test('POST /api/posts/:postId/comments/:commentId/unlike', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/comments/' + comment.id + '/unlike')
+    const response = await request(app).post('/api/posts/' + post._id + '/comments/' + comment._id + '/unlike')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.comment.likes).toEqual([]);
@@ -183,7 +183,7 @@ test('POST /api/posts/:postId/comments/:commentId/unlike', async () => {
 
 // Delete Post
 test('POST /api/posts/:postId/delete', async () => {
-    const response = await request(app).post('/api/posts/' + post.id + '/delete')
+    const response = await request(app).post('/api/posts/' + post._id + '/delete')
     .set('Authorization', 'Bearer ' + token);
     expect(response.body.message).toEqual('Success');
 });

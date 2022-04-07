@@ -29,7 +29,22 @@ passport.use(new LocalStrategy(localOptions, (req, email, password, done) => {
 
         bcrypt.compare(password, user.password, (err, res) => {
             if (err) { return done(err); }
-            if (res) { return done(null, { id: user._id, email: user.email, username: user.username }, { message: 'Logged in successfully.' }); }
+            if (res) { return done(null, {
+                _id: user._id,
+                email: user.email,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                contact: user.contact,
+                pic: user.pic,
+                bio: user.bio,
+                friends: user.friends,
+                requests: user.requests,
+                likedPosts: user.likedPosts,
+                likedComments: user.likedComments,
+                public: user.public,
+                admin: user.admin
+            }, { message: 'Logged in successfully.' }); }
             else { return done(null, false, { message: 'Incorrect password.' }); }
         });
     });
