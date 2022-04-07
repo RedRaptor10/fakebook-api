@@ -5,6 +5,9 @@ const passport = require('passport');
 // Controller
 const indexController = require('../controllers/index');
 
+// Auth
+router.get('/auth', passport.authenticate('jwt', { session: false }), (req, res) => { res.json(req.user.info); });
+
 // Log In
 router.post('/log-in', indexController.logIn);
 
