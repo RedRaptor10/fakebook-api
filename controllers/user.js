@@ -32,7 +32,12 @@ exports.getUser = function(req, res, next) {
     User.findOne({ 'username': req.params.username }, { 'password': 0 }) // Exclude password from db query
     .exec(function(err, results) {
         if (err) { return next(err); }
-        res.json(results);
+
+	// Clone results (Replaces '_id' field with 'id')
+	let resultsClone = JSON.parse(JSON.stringify(results));
+	resultsClone.id = results._id;
+	delete resultsClone._id;
+        res.json(resultsClone);
     });
 };
 
