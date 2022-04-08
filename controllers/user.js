@@ -169,26 +169,26 @@ exports.deleteUser = function(req, res, next) {
 
 // Send Friend Request
 exports.sendRequest = function(req, res, next) {
-    // Add User id to other User Received Requests array
+    // Add User id to target User Received Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
         { '$addToSet': { 'requests.received': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsUser2) {
+        function(err, resultsTargetUser) {
             if (err) { next(err); }
 
-            // Add other User id to User Sent Requests array
+            // Add target User id to User Sent Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$addToSet': { 'requests.sent': resultsUser2._id } },
+                { '$addToSet': { 'requests.sent': resultsTargetUser._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
                     res.json({
                         user: resultsUser,
-                        user2: resultsUser2,
+                        targetUser: resultsTargetUser,
                         message: 'Success'
                     });
                 }
@@ -211,26 +211,26 @@ exports.deleteRequest = function(req, res, next) {
         targetUserRequests = 'requests.sent';
     }
 
-    // Remove User id from other User Sent/Received Requests array
+    // Remove User id from target User Sent/Received Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
         { '$pull': { [targetUserRequests]: req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsUser2) {
+        function(err, resultsTargetUser) {
             if (err) { next(err); }
 
-            // Remove other User id from User Sent/Received Requests array
+            // Remove target User id from User Sent/Received Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$pull': { [userRequests]: resultsUser2._id } },
+                { '$pull': { [userRequests]: resultsTargetUser._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
                     res.json({
                         user: resultsUser,
-                        user2: resultsUser2,
+                        targetUser: resultsTargetUser,
                         message: 'Success'
                     });
                 }
@@ -241,28 +241,28 @@ exports.deleteRequest = function(req, res, next) {
 
 // Add Friend
 exports.addFriend = function(req, res, next) {
-    // Add User id to other User Friends array, then remove User id from other User Received Requests array
+    // Add User id to target User Friends array, then remove User id from target User Received Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
         { '$addToSet': { 'friends': req.user.info._id },
           '$pull': { 'requests.received': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsUser2) {
+        function(err, resultsTargetUser) {
             if (err) { next(err); }
 
-            // Add other User id to User Friends array, then remove other User id from User Sent Requests array
+            // Add target User id to User Friends array, then remove target User id from User Sent Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$addToSet': { 'friends': resultsUser2._id },
-                  '$pull': { 'requests.sent': resultsUser2._id } },
+                { '$addToSet': { 'friends': resultsTargetUser._id },
+                  '$pull': { 'requests.sent': resultsTargetUser._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
                         res.json({
                             user: resultsUser,
-                            user2: resultsUser2,
+                            targetUser: resultsTargetUser,
                             message: 'Success'
                         });
                 }
@@ -273,26 +273,26 @@ exports.addFriend = function(req, res, next) {
 
 // Delete Friend
 exports.deleteFriend = function(req, res, next) {
-    // Delete User id from other User Friends array
+    // Delete User id from target User Friends array
     User.findOneAndUpdate(
         { 'username': req.params.username },
         { '$pull': { 'friends': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsUser2) {
+        function(err, resultsTargetUser) {
             if (err) { next(err); }
 
-            // Delete other User id from User Friends array
+            // Delete target User id from User Friends array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$pull': { 'friends': resultsUser2._id } },
+                { '$pull': { 'friends': resultsTargetUser._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
                         res.json({
                             user: resultsUser,
-                            user2: resultsUser2,
+                            targetUser: resultsTargetUser,
                             message: 'Success'
                         });
                 }

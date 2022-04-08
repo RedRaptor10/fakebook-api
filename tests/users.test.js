@@ -101,7 +101,7 @@ test('POST /api/users/:username/send-request', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.user2.requests.received).toEqual([user._id]);
+    expect(response.body.targetUser.requests.received).toEqual([user._id]);
     expect(response.body.user.requests.sent).toEqual([user2._id]);
 });
 
@@ -111,7 +111,7 @@ test('POST /api/users/:username/delete-request/:type', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.user2.requests.received).toEqual([]);
+    expect(response.body.targetUser.requests.received).toEqual([]);
     expect(response.body.user.requests.sent).toEqual([]);
 });
 
@@ -125,8 +125,8 @@ test('POST /api/users/:username/add-friend', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.user2.friends).toEqual([user._id]);
-    expect(response.body.user2.requests.received).toEqual([]);
+    expect(response.body.targetUser.friends).toEqual([user._id]);
+    expect(response.body.targetUser.requests.received).toEqual([]);
     expect(response.body.user.friends).toEqual([user2._id]);
     expect(response.body.user.requests.sent).toEqual([]);
 });
@@ -137,7 +137,7 @@ test('POST /api/users/:username/delete-friend', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.user2.friends).toEqual([]);
+    expect(response.body.targetUser.friends).toEqual([]);
     expect(response.body.user.friends).toEqual([]);
 });
 
