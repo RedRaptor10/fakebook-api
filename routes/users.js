@@ -11,6 +11,9 @@ router.get('/', userController.getUsers);
 // Get User
 router.get('/:username', userController.getUser);
 
+// Get User From ID
+router.get('/id/:userId', userController.getUserFromId);
+
 // Create User
 router.post('/create', userController.createUser);
 
