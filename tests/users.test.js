@@ -105,9 +105,9 @@ test('POST /api/users/:username/send-request', async () => {
     expect(response.body.user.requests.sent).toEqual([user2._id]);
 });
 
-// Delete Friend Request
-test('POST /api/users/:username/delete-request', async () => {
-    const response = await request(app).post('/api/users/test2/delete-request')
+// Delete Sent Friend Request
+test('POST /api/users/:username/delete-request/:type', async () => {
+    const response = await request(app).post('/api/users/test2/delete-request/sent')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);

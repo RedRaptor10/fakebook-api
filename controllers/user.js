@@ -199,19 +199,31 @@ exports.sendRequest = function(req, res, next) {
 
 // Delete Friend Request
 exports.deleteRequest = function(req, res, next) {
-    // Remove User id from other User Received Requests array
+    let userRequests;
+    let targetUserRequests;
+
+    // Set requests arrays to remove requests from
+    if (req.params.type == 'sent') {
+        userRequests = 'requests.sent';
+        targetUserRequests = 'requests.received';
+    } else if (req.params.type == 'received') {
+        userRequests = 'requests.received';
+        targetUserRequests = 'requests.sent';
+    }
+
+    // Remove User id from other User Sent/Received Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
-        { '$pull': { 'requests.received': req.user.info._id } },
+        { '$pull': { [targetUserRequests]: req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
         function(err, resultsUser2) {
             if (err) { next(err); }
 
-            // Remove other User id from User Sent Requests array
+            // Remove other User id from User Sent/Received Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$pull': { 'requests.sent': resultsUser2._id } },
+                { '$pull': { [userRequests]: resultsUser2._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {

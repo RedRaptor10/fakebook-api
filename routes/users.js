@@ -32,7 +32,7 @@ router.post('/:username/send-request',
     userController.sendRequest);
 
 // Delete Friend Request
-router.post('/:username/delete-request',
+router.post('/:username/delete-request/:type',
     passport.authenticate('jwt', { session: false }),
     userController.deleteRequest);
 
