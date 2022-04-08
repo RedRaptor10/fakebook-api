@@ -36,6 +36,15 @@ exports.getUser = function(req, res, next) {
     });
 };
 
+// Get User From ID
+exports.getUserFromId = function(req, res, next) {
+    User.findOne({ '_id': req.params.userId }, { 'password': 0 }) // Exclude password from db query
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        res.json(results);
+    });
+};
+
 // Create User
 exports.createUser = [
     // Process Sign Up
@@ -241,30 +250,30 @@ exports.deleteRequest = function(req, res, next) {
 
 // Add Friend
 exports.addFriend = function(req, res, next) {
-    // Add User id to target User Friends array, then remove User id from target User Received Requests array
+    // Add User id to target User Friends array, then remove User id from target User Sent Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
         { '$addToSet': { 'friends': req.user.info._id },
-          '$pull': { 'requests.received': req.user.info._id } },
+          '$pull': { 'requests.sent': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
         function(err, resultsTargetUser) {
             if (err) { next(err); }
 
-            // Add target User id to User Friends array, then remove target User id from User Sent Requests array
+            // Add target User id to User Friends array, then remove target User id from User Received Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
                 { '$addToSet': { 'friends': resultsTargetUser._id },
-                  '$pull': { 'requests.sent': resultsTargetUser._id } },
+                  '$pull': { 'requests.received': resultsTargetUser._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
-                        res.json({
-                            user: resultsUser,
-                            targetUser: resultsTargetUser,
-                            message: 'Success'
-                        });
+                    res.json({
+                        user: resultsUser,
+                        targetUser: resultsTargetUser,
+                        message: 'Success'
+                    });
                 }
             );
         }
