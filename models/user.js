@@ -19,8 +19,10 @@ var UserSchema = new Schema({
         sent: [{ type: Schema.Types.ObjectId, ref: 'User' }],
         received: [{ type: Schema.Types.ObjectId, ref: 'User' }]
     },
-    likedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-    likedComments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+    likes: {
+        posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+        comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
+    },
     public: { type: Boolean, required: true },
     admin: { type: Boolean, default: false, required: true }
 });

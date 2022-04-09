@@ -119,15 +119,15 @@ exports.likeComment = [
     // Process Comment Like
     (req, res, next) => {
         // Add User id to Comment likes array
-        Comment.findByIdAndUpdate(req.params.commentId, { $addToSet: { likes: req.user.info._id } }, { new: true }, function(err, resultsComment) {
+        Comment.findByIdAndUpdate(req.params.commentId, { '$addToSet': { 'likes': req.user.info._id } }, { new: true }, function(err, comment) {
             if (err) { return next(err); }
 
-            // Add Comment id to User likedComments array
-            User.findByIdAndUpdate(req.user.info._id, { $addToSet: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+            // Add Comment id to User liked comments array
+            User.findByIdAndUpdate(req.user.info._id, { '$addToSet': { 'likes.comments': req.params.commentId } }, { new: true }, function(err, user) {
                 if (err) { return next(err); }
                 return res.json({
-                    comment: resultsComment,
-                    user: resultsUser,
+                    comment,
+                    user,
                     message: 'Success'
                 });
             });
@@ -140,15 +140,15 @@ exports.unlikeComment = [
     // Process Comment Unlike
     (req, res, next) => {
         // Remove User id from Comment likes array
-        Comment.findByIdAndUpdate(req.params.commentId, { $pull: { likes: req.user.info._id } }, { new: true }, function(err, resultsComment) {
+        Comment.findByIdAndUpdate(req.params.commentId, { '$pull': { 'likes': req.user.info._id } }, { new: true }, function(err, comment) {
             if (err) { return next(err); }
 
-            // Remove Comment id from User likedPosts array
-            User.findByIdAndUpdate(req.user.info._id, { $pull: { likedComments: req.params.commentId } }, { new: true }, function(err, resultsUser) {
+            // Remove Comment id from User liked comments array
+            User.findByIdAndUpdate(req.user.info._id, { '$pull': { 'likes.comments': req.params.commentId } }, { new: true }, function(err, user) {
                 if (err) { return next(err); }
                 return res.json({
-                    comment: resultsComment,
-                    user: resultsUser,
+                    comment,
+                    user,
                     message: 'Success'
                 });
             });

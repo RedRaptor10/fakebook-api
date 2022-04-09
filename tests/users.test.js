@@ -17,7 +17,7 @@ app.use('/api/users', usersRouter);
 
 let token;
 let user;
-let user2;
+let target;
 
 beforeAll(async () => {
     await startMongoServer();
@@ -54,7 +54,7 @@ beforeAll(async () => {
         admin: false
     });
 
-    user2 = response.body.user;
+    target = response.body.user;
 
     // Log In
     response = await request(app)
@@ -101,8 +101,8 @@ test('POST /api/users/:username/send-request', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.targetUser.requests.received).toEqual([user._id]);
-    expect(response.body.user.requests.sent).toEqual([user2._id]);
+    expect(response.body.target.requests.received).toEqual([user._id]);
+    expect(response.body.user.requests.sent).toEqual([target._id]);
 });
 
 // Delete Sent Friend Request
@@ -111,24 +111,18 @@ test('POST /api/users/:username/delete-request/:type', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.targetUser.requests.received).toEqual([]);
+    expect(response.body.target.requests.received).toEqual([]);
     expect(response.body.user.requests.sent).toEqual([]);
 });
 
 // Add Friend
 test('POST /api/users/:username/add-friend', async () => {
-    // Send Friend Request
-    await request(app).post('/api/users/test2/send-request')
-    .set('Authorization', 'Bearer ' + token);
-
     const response = await request(app).post('/api/users/test2/add-friend')
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.targetUser.friends).toEqual([user._id]);
-    expect(response.body.targetUser.requests.received).toEqual([]);
-    expect(response.body.user.friends).toEqual([user2._id]);
-    expect(response.body.user.requests.sent).toEqual([]);
+    expect(response.body.target.friends).toEqual([user._id]);
+    expect(response.body.user.friends).toEqual([target._id]);
 });
 
 // Delete Friend
@@ -137,7 +131,7 @@ test('POST /api/users/:username/delete-friend', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.targetUser.friends).toEqual([]);
+    expect(response.body.target.friends).toEqual([]);
     expect(response.body.user.friends).toEqual([]);
 });
 

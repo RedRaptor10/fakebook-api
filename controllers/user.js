@@ -66,8 +66,10 @@ exports.createUser = [
                 sent: [],
                 received: []
             },
-            likedPosts: [],
-            likedComments: [],
+            likes: {
+                posts: [],
+                comments: []
+            },
             public: req.body.public,
             admin: req.body.admin
         });
@@ -99,8 +101,10 @@ exports.createUser = [
                                     sent: user.requests.sent,
                                     received: user.requests.received
                                 },
-                                likedPosts: user.likedPosts,
-                                likedComments: user.likedComments,
+                                likes: {
+                                    posts: user.likes.posts,
+                                    comments: user.likes.comments
+                                },
                                 public: user.public,
                                 admin: user.admin
                             },
@@ -124,8 +128,6 @@ exports.updateUser = [
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             friends: req.body.friends,
-            likedPosts: req.body.likedPosts,
-            likedComments: req.body.likedComments,
             public: req.body.public,
             admin: req.body.admin
         });
@@ -137,6 +139,15 @@ exports.updateUser = [
             user.requests.sent = req.body.requests.sent;
             user.requests.received = req.body.requests.received;
         }
+        if (req.body.likes) {
+            user.likes.posts = req.body.likes.posts;
+            user.likes.comments = req.body.likes.comments;
+        }
+
+        // Clone user object & remove _id field for updating
+        // The user object contains a new _id value, we want to update only the other field values
+        let userClone = JSON.parse(JSON.stringify(user));
+        delete userClone._id;
 
         // Check if username already exists AND is not same as previous username
         User.findOne({ 'username': user.username })
@@ -150,22 +161,15 @@ exports.updateUser = [
                     if (err) { return next(err); }
                     user.password = hashedPassword;
 
-                    // Clone user object & remove _id field for updating
-                    let userClone = JSON.parse(JSON.stringify(user));
-                    delete userClone._id;
-
                     // Update user info from database
                     User.findOneAndUpdate(
                         { 'username': req.params.username }, // Filter
                         userClone, // New values
-                        function(err) {
+                        { 'fields': { 'password': 0 }, // Exclude password from results
+                          'new': true },
+                        function(err, results) {
                             if (err) { return next(err); }
-
-                            // Reset _id field & remove password
-                            userClone._id = user._id;
-                            delete userClone.password;
-
-                            res.json({ user: userClone, message: 'Success' });
+                            res.json({ user: results, message: 'Success' });
                         }
                     );
                 });
@@ -190,27 +194,22 @@ exports.sendRequest = function(req, res, next) {
         { '$addToSet': { 'requests.received': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsTargetUser) {
+        function(err, target) {
             if (err) { next(err); }
 
             // Add target User id to User Sent Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$addToSet': { 'requests.sent': resultsTargetUser._id } },
+                { '$addToSet': { 'requests.sent': target._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
-                function(err, resultsUser) {
+                function(err, user) {
                     if (err) { next(err); }
 
                     // Update token
-                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
 
-                    res.json({
-                        user: resultsUser,
-                        targetUser: resultsTargetUser,
-                        token,
-                        message: 'Success'
-                    });
+                    res.json({ user, target, token, message: 'Success' });
                 }
             );
         }
@@ -220,44 +219,39 @@ exports.sendRequest = function(req, res, next) {
 // Delete Friend Request
 exports.deleteRequest = function(req, res, next) {
     let userRequests;
-    let targetUserRequests;
+    let targetRequests;
 
     // Set requests arrays to remove requests from
     if (req.params.type == 'sent') {
         userRequests = 'requests.sent';
-        targetUserRequests = 'requests.received';
+        targetRequests = 'requests.received';
     } else if (req.params.type == 'received') {
         userRequests = 'requests.received';
-        targetUserRequests = 'requests.sent';
+        targetRequests = 'requests.sent';
     }
 
     // Remove User id from target User Sent/Received Requests array
     User.findOneAndUpdate(
         { 'username': req.params.username },
-        { '$pull': { [targetUserRequests]: req.user.info._id } },
+        { '$pull': { [targetRequests]: req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsTargetUser) {
+        function(err, target) {
             if (err) { next(err); }
 
             // Remove target User id from User Sent/Received Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$pull': { [userRequests]: resultsTargetUser._id } },
+                { '$pull': { [userRequests]: target._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
-                function(err, resultsUser) {
+                function(err, user) {
                     if (err) { next(err); }
 
                     // Update token
-                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
 
-                    res.json({
-                        user: resultsUser,
-                        targetUser: resultsTargetUser,
-                        token,
-                        message: 'Success'
-                    });
+                    res.json({ user, target, token, message: 'Success' });
                 }
             );
         }
@@ -273,28 +267,23 @@ exports.addFriend = function(req, res, next) {
           '$pull': { 'requests.sent': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsTargetUser) {
+        function(err, target) {
             if (err) { next(err); }
 
             // Add target User id to User Friends array, then remove target User id from User Received Requests array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$addToSet': { 'friends': resultsTargetUser._id },
-                  '$pull': { 'requests.received': resultsTargetUser._id } },
+                { '$addToSet': { 'friends': target._id },
+                  '$pull': { 'requests.received': target._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
-                function(err, resultsUser) {
+                function(err, user) {
                     if (err) { next(err); }
 
                     // Update token
-                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
 
-                    res.json({
-                        user: resultsUser,
-                        targetUser: resultsTargetUser,
-                        token,
-                        message: 'Success'
-                    });
+                    res.json({ user, target, token, message: 'Success' });
                 }
             );
         }
@@ -309,27 +298,22 @@ exports.deleteFriend = function(req, res, next) {
         { '$pull': { 'friends': req.user.info._id } },
         { 'fields': { 'password': 0 }, // Exclude password from results
           'new': true },
-        function(err, resultsTargetUser) {
+        function(err, target) {
             if (err) { next(err); }
 
             // Delete target User id from User Friends array
             User.findOneAndUpdate(
                 { 'username': req.user.info.username },
-                { '$pull': { 'friends': resultsTargetUser._id } },
+                { '$pull': { 'friends': target._id } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
-                function(err, resultsUser) {
+                function(err, user) {
                     if (err) { next(err); }
 
                     // Update token
-                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
 
-                        res.json({
-                            user: resultsUser,
-                            targetUser: resultsTargetUser,
-                            token,
-                            message: 'Success'
-                        });
+                    res.json({ user, target, token, message: 'Success' });
                 }
             );
         }

@@ -151,7 +151,7 @@ test('POST /api/posts/:postId/like', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.post.likes).toEqual([user._id]);
-    expect(response.body.user.likedPosts).toEqual([post._id]);
+    expect(response.body.user.likes.posts).toEqual([post._id]);
 });
 
 // Unlike Post
@@ -160,7 +160,7 @@ test('POST /api/posts/:postId/unlike', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.post.likes).toEqual([]);
-    expect(response.body.user.likedPosts).toEqual([]);
+    expect(response.body.user.likes.posts).toEqual([]);
 });
 
 // Like Comment
@@ -169,7 +169,7 @@ test('POST /api/posts/:postId/comments/:commentId/like', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.comment.likes).toEqual([user._id]);
-    expect(response.body.user.likedComments).toEqual([comment._id]);
+    expect(response.body.user.likes.comments).toEqual([comment._id]);
 });
 
 // Unlike Comment
@@ -178,7 +178,7 @@ test('POST /api/posts/:postId/comments/:commentId/unlike', async () => {
     .set('Authorization', 'Bearer ' + token);
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.body.comment.likes).toEqual([]);
-    expect(response.body.user.likedComments).toEqual([]);
+    expect(response.body.user.likes.comments).toEqual([]);
 });
 
 // Delete Post
