@@ -125,6 +125,16 @@ test('POST /api/users/:username/add-friend', async () => {
     expect(response.body.user.friends).toEqual([target._id]);
 });
 
+// Get Friends
+test('GET /api/users/:username/get-friends', async () => {
+    const response = await request(app).get('/api/users/test1/get-friends')
+    .set('Authorization', 'Bearer ' + token);
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body[0].username).toEqual(target.username);
+});
+
 // Delete Friend
 test('POST /api/users/:username/delete-friend', async () => {
     const response = await request(app).post('/api/users/test2/delete-friend')

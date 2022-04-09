@@ -320,6 +320,30 @@ exports.deleteFriend = function(req, res, next) {
     );
 };
 
+// Get Friends
+exports.getFriends = [
+    (req, res, next) => {
+        // Get User's Friends array
+        User.findOne({ 'username': req.params.username }, { 'password': 0 }) // Exclude password from db query
+        .exec(function(err, results) {
+            if (err) { return next(err); }
+            res.locals.friends = results.friends; // Save Friends array as local variable and pass to next middleware
+            next();
+        });
+    },
+
+    (req, res, next) => {
+        // Find all Users where their id is in User's Friends array
+        User.find(
+        { '_id': { '$in': res.locals.friends } },
+        { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'likes': 0, 'public': 0, 'admin': 0 },
+        function(err, results) {
+            if (err) { next(err); }
+            res.json(results);
+        });
+    }
+];
+
 // Get Friend Requests
 exports.getRequests = function(req, res, next) {
     let requests;
@@ -330,9 +354,11 @@ exports.getRequests = function(req, res, next) {
     }
 
     // Find all Users where their id is in User's Sent/Received Requests array
-    User.find({ '_id': { '$in': requests } }, { 'password': 0 }, function(err, results) {
+    User.find(
+    { '_id': { '$in': requests } },
+    { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'likes': 0, 'public': 0, 'admin': 0 },
+    function(err, results) {
         if (err) { next(err); }
-
         res.json(results);
     });
 };

@@ -29,6 +29,11 @@ router.post('/:username/delete',
     userController.auth,
     userController.deleteUser);
 
+// Get Friends
+router.get('/:username/get-friends',
+    passport.authenticate('jwt', { session: false }),
+    userController.getFriends);
+
 // Send Friend Request
 router.post('/:username/send-request',
     passport.authenticate('jwt', { session: false }),
