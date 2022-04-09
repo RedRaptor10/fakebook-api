@@ -1,5 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const nconf = require('nconf');
+
+// Set up nconf
+nconf.argv().env().file({ file: './config.json' });
+
 
 // Check if user is authorized
 exports.auth = (req, res, next) => {
@@ -195,9 +201,14 @@ exports.sendRequest = function(req, res, next) {
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
+
+                    // Update token
+                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
                     res.json({
                         user: resultsUser,
                         targetUser: resultsTargetUser,
+                        token,
                         message: 'Success'
                     });
                 }
@@ -237,9 +248,14 @@ exports.deleteRequest = function(req, res, next) {
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
+
+                    // Update token
+                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
                     res.json({
                         user: resultsUser,
                         targetUser: resultsTargetUser,
+                        token,
                         message: 'Success'
                     });
                 }
@@ -269,9 +285,14 @@ exports.addFriend = function(req, res, next) {
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
+
+                    // Update token
+                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
                     res.json({
                         user: resultsUser,
                         targetUser: resultsTargetUser,
+                        token,
                         message: 'Success'
                     });
                 }
@@ -299,13 +320,35 @@ exports.deleteFriend = function(req, res, next) {
                   'new': true },
                 function(err, resultsUser) {
                     if (err) { next(err); }
+
+                    // Update token
+                    const token = jwt.sign({ info: resultsUser }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
                         res.json({
                             user: resultsUser,
                             targetUser: resultsTargetUser,
+                            token,
                             message: 'Success'
                         });
                 }
             );
         }
     );
+};
+
+// Get Friend Requests
+exports.getRequests = function(req, res, next) {
+    let requests;
+    if (req.params.type == 'sent') {
+        requests = req.user.info.requests.sent;
+    } else if (req.params.type == 'received') {
+        requests = req.user.info.requests.received;
+    }
+
+    // Find all Users where their id is in User's Sent/Received Requests array
+    User.find({ '_id': { '$in': requests } }, { 'password': 0 }, function(err, results) {
+        if (err) { next(err); }
+
+        res.json(results);
+    });
 };
