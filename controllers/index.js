@@ -30,7 +30,7 @@ exports.logIn = [
                 req.login(user, { session: false }, (error) => {
                     if (error) { res.json(error); }
                     // Generate a signed JSON web token with the contents of the user object (NOTE: Access user info via req.user.info)
-                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: '5m' });
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
                     return res.json({ user, token });
                 });
             })(req, res);
