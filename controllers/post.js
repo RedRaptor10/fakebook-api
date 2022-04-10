@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const User = require('../models/user');
+const { body, validationResult } = require('express-validator');
 
 // Check if user is authorized
 exports.auth = (req, res, next) => {
@@ -67,61 +68,81 @@ exports.getPost = function(req, res, next) {
 
 // Create Post
 exports.createPost = [
+    // Validate and sanitize fields
+    body('content', 'Post cannot be empty.').trim().isLength({ min: 1 }).escape(),
+
     // Process Post Submit
     (req, res, next) => {
-        const post = new Post({
-            author: req.body.author,
-            date: req.body.date,
-            content: req.body.content,
-            image: req.body.image,
-            likes: [],
-            comments: [],
-            public: req.body.public
-        });
+        // Extract the validation errors from request
+        const errors = validationResult(req);
 
-        // Save post to database
-        post.save(function(err) {
-            if (err) { return next(err); }
-            res.json({
-                post: {
-                    _id: post._id,
-                    author: post.author._id,
-                    date: post.date,
-                    content: post.content,
-                    image: post.image,
-                    likes: post.likes,
-                    comments: post.comments,
-                    public: post.public
-                },
-                message: 'Success'
+        if (!errors.isEmpty()) {
+            res.json({ errors: errors.array() });
+        } else {
+            const post = new Post({
+                author: req.body.author,
+                date: req.body.date,
+                content: req.body.content,
+                image: req.body.image,
+                likes: [],
+                comments: [],
+                public: req.body.public
             });
-        });
+
+            // Save post to database
+            post.save(function(err) {
+                if (err) { return next(err); }
+                res.json({
+                    post: {
+                        _id: post._id,
+                        author: post.author._id,
+                        date: post.date,
+                        content: post.content,
+                        image: post.image,
+                        likes: post.likes,
+                        comments: post.comments,
+                        public: post.public
+                    },
+                    message: 'Success'
+                });
+            });
+        }
     }
 ];
 
 // Update Post
 exports.updatePost = [
+    // Validate and sanitize fields
+    body('content', 'Post cannot be empty.').trim().isLength({ min: 1 }).escape(),
+
     // Process Post Update
     (req, res, next) => {
-        const post = new Post({
-            _id: req.params.postId,
-            author: req.body.author,
-            date: req.body.date,
-            content: req.body.content,
-            image: req.body.image,
-            likes: req.body.likes,
-            comments: req.body.comments,
-            public: req.body.public
-        });
+        // Extract the validation errors from request
+        const errors = validationResult(req);
 
-        // Save post to database
-        Post.findByIdAndUpdate(req.params.postId, post, { new: true }, function(err, results) {
-            if (err) { return next(err); }
-            res.json({
-                post: results,
-                message: 'Success'
+        if (!errors.isEmpty()) {
+            res.json({ errors: errors.array() });
+        } else {
+            const post = new Post({
+                _id: req.params.postId,
+                author: req.body.author,
+                date: req.body.date,
+                content: req.body.content,
+                image: req.body.image,
+                likes: req.body.likes,
+                comments: req.body.comments,
+                public: req.body.public
             });
-        });
+
+            // Save post to database
+            Post.findByIdAndUpdate(req.params.postId, post, { new: true }, function(err, results) {
+                if (err) { return next(err); }
+                res.json({
+                    post: results,
+                    message: 'Success'
+                });
+            });
+        }
     }
 ];
 
