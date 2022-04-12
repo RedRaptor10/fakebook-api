@@ -49,7 +49,8 @@ exports.getUserPosts = function(req, res, next) {
     if (req.query.sort == 'date') { sortby = 'date'; }
     if (req.query.order == 'desc') { orderby = 'descending'; }
 
-    Post.find({ 'author': req.params.userId }, { 'password': 0 }) // Exclude password from db query
+    Post.find({ 'author': req.params.userId })
+    .populate('author', { 'password': 0 }) // Exclude password from db query
     .exec(function(err, results) {
         if (err) { return next(err); }
         res.json(results);
