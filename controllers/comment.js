@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const { body, validationResult } = require('express-validator');
 
 // Check if user is authorized
 exports.auth = (req, res, next) => {
@@ -64,55 +65,75 @@ exports.getPostComments = function(req, res, next) {
 
 // Create Comment
 exports.createComment = [
+    // Validate and sanitize fields
+    body('content', 'Comment cannot be empty.').trim().isLength({ min: 1 }).escape(),
+
     // Process Comment Submit
     (req, res, next) => {
-        const comment = new Comment ({
-            post: req.params.postId,
-            author: req.body.author,
-            date: req.body.date,
-            content: req.body.content,
-            likes: req.body.likes
-        });
+        // Extract the validation errors from request
+        const errors = validationResult(req);
 
-        // Save comment to database
-        comment.save(function(err) {
-            if (err) { return next(err); }
-
-            res.json({
-                comment: {
-                    _id: comment._id,
-                    post: comment.post._id,
-                    author: comment.author._id,
-                    date: comment.date,
-                    content: comment.content,
-                    likes: comment.likes
-                    },
-                message: 'Success'
+        if (!errors.isEmpty()) {
+            res.json({ errors: errors.array() });
+        } else {
+            const comment = new Comment ({
+                post: req.params.postId,
+                author: req.body.author,
+                date: req.body.date,
+                content: req.body.content,
+                likes: req.body.likes
             });
-        });
+
+            // Save comment to database
+            comment.save(function(err) {
+                if (err) { return next(err); }
+
+                res.json({
+                    comment: {
+                        _id: comment._id,
+                        post: comment.post._id,
+                        author: comment.author._id,
+                        date: comment.date,
+                        content: comment.content,
+                        likes: comment.likes
+                    },
+                    message: 'Success'
+                });
+            });
+        }
     }
 ];
 
 // Update Comment
 exports.updateComment = [
-    (req, res, next) => {
-        const comment = new Comment ({
-            _id: req.params.commentId,
-            post: req.params.postId,
-            author: req.body.author,
-            date: req.body.date,
-            content: req.body.content,
-            likes: req.body.likes
-        });
+    // Validate and sanitize fields
+    body('content', 'Comment cannot be empty.').trim().isLength({ min: 1 }).escape(),
 
-        // Save comment to database
-        Comment.findByIdAndUpdate(req.params.commentId, comment, { new: true }, function(err, results) {
-            if (err) { return next(err); }
-            res.json({
-                comment: results,
-                message: 'Success'
+    (req, res, next) => {
+        // Extract the validation errors from request
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            res.json({ errors: errors.array() });
+        } else {
+            const comment = new Comment ({
+                _id: req.params.commentId,
+                post: req.params.postId,
+                author: req.body.author,
+                date: req.body.date,
+                content: req.body.content,
+                likes: req.body.likes
             });
-        });
+
+            // Save comment to database
+            Comment.findByIdAndUpdate(req.params.commentId, comment, { new: true }, function(err, results) {
+                if (err) { return next(err); }
+                res.json({
+                    comment: results,
+                    message: 'Success'
+                });
+            });
+        }
     }
 ];
 
