@@ -78,25 +78,17 @@ exports.createComment = [
         comment.save(function(err) {
             if (err) { return next(err); }
 
-            Post.findOneAndUpdate(
-                { '_id': req.params.postId },
-                { '$addToSet': { 'comments': comment._id } },
-                function(err) {
-                    if (err) { next(err); }
-
-                    res.json({
-                        comment: {
-                            _id: comment._id,
-                            post: comment.post._id,
-                            author: comment.author._id,
-                            date: comment.date,
-                            content: comment.content,
-                            likes: comment.likes
-                        },
-                        message: 'Success'
-                    });
-                }
-            );
+            res.json({
+                comment: {
+                    _id: comment._id,
+                    post: comment.post._id,
+                    author: comment.author._id,
+                    date: comment.date,
+                    content: comment.content,
+                    likes: comment.likes
+                    },
+                message: 'Success'
+            });
         });
     }
 ];

@@ -86,7 +86,6 @@ exports.createPost = [
                 content: req.body.content,
                 image: req.body.image,
                 likes: [],
-                comments: [],
                 public: req.body.public
             });
 
@@ -101,7 +100,6 @@ exports.createPost = [
                         content: post.content,
                         image: post.image,
                         likes: post.likes,
-                        comments: post.comments,
                         public: post.public
                     },
                     message: 'Success'
@@ -131,7 +129,6 @@ exports.updatePost = [
                 content: req.body.content,
                 image: req.body.image,
                 likes: req.body.likes,
-                comments: req.body.comments,
                 public: req.body.public
             });
 
