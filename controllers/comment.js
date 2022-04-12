@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Post = require('../models/post');
 const Comment = require('../models/comment');
 
 // Check if user is authorized
@@ -76,17 +77,26 @@ exports.createComment = [
         // Save comment to database
         comment.save(function(err) {
             if (err) { return next(err); }
-            res.json({
-                comment: {
-                    _id: comment._id,
-                    post: comment.post._id,
-                    author: comment.author._id,
-                    date: comment.date,
-                    content: comment.content,
-                    likes: comment.likes
-                },
-                message: 'Success'
-            });
+
+            Post.findOneAndUpdate(
+                { '_id': req.params.postId },
+                { '$addToSet': { 'comments': comment._id } },
+                function(err) {
+                    if (err) { next(err); }
+
+                    res.json({
+                        comment: {
+                            _id: comment._id,
+                            post: comment.post._id,
+                            author: comment.author._id,
+                            date: comment.date,
+                            content: comment.content,
+                            likes: comment.likes
+                        },
+                        message: 'Success'
+                    });
+                }
+            );
         });
     }
 ];
