@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nconf = require('nconf');
@@ -111,58 +112,81 @@ exports.createUser = [
 
 // Update User
 exports.updateUser = [
+    // Validate and sanitize fields
+    body('email').trim().isLength({ min: 1 }).escape().withMessage('Email required.')
+        .isLength({ max: 100 }).withMessage('Email must have 100 characters or less.'),
+    body('username').trim().isLength({ min: 1 }).escape().withMessage('Username required.')
+        .isLength({ max: 20 }).withMessage('Username must have 20 characters or less.'),
+    body('password', 'Password must contain at least 5 characters.').trim().isLength({ min: 5 }).escape(),
+    body('confirmPassword', 'Passwords do not match.').trim().escape().custom((value, { req }) => value === req.body.password),
+    body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First Name required.')
+        .isLength({ max: 100 }).withMessage('First Name must have 100 characters or less.'),
+    body('lastName').trim().isLength({ min: 1 }).escape().withMessage('Last Name required.')
+        .isLength({ max: 100 }).withMessage('Last Name must have 100 characters or less.'),
+
     // Process User Update
     (req, res, next) => {
-        const user = new User({
-            email: req.body.email,
-            username: req.body.username,
-            password: req.body.password,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            friends: req.body.friends,
-            public: req.body.public,
-            admin: req.body.admin
-        });
+        // Extract the validation errors from request
+        const errors = validationResult(req);
 
-        if (req.body.contact) { user.contact = req.body.contact; }
-        if (req.body.pic) { user.pic = req.body.pic; }
-        if (req.body.bio) { user.bio = req.body.bio; }
-        if (req.body.requests) {
-            user.requests.sent = req.body.requests.sent;
-            user.requests.received = req.body.requests.received;
-        }
+        if (!errors.isEmpty()) {
+            res.json({ username: req.body.username, errors: errors.array() });
+        } else {
+                const user = new User({
+                email: req.body.email,
+                username: req.body.username,
+                password: req.body.password,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                friends: req.body.friends,
+                public: req.body.public,
+                admin: req.body.admin
+            });
 
-        // Clone user object & remove _id field for updating
-        // The user object contains a new _id value, we want to update only the other field values
-        let userClone = JSON.parse(JSON.stringify(user));
-        delete userClone._id;
-
-        // Check if username already exists AND is not same as previous username
-        User.findOne({ 'username': user.username })
-        .exec(function(err, results) {
-            if (err) { return next(err); }
-            else if (results && results.username != req.params.username) {
-                res.json({ message: 'Username already exists.' });
-            } else {
-                // Hash password
-                bcrypt.hash(user.password, 10, (err, hashedPassword) => {
-                    if (err) { return next(err); }
-                    user.password = hashedPassword;
-
-                    // Update user info from database
-                    User.findOneAndUpdate(
-                        { 'username': req.params.username }, // Filter
-                        userClone, // New values
-                        { 'fields': { 'password': 0 }, // Exclude password from results
-                          'new': true },
-                        function(err, results) {
-                            if (err) { return next(err); }
-                            res.json({ user: results, message: 'Success' });
-                        }
-                    );
-                });
+            if (req.body.contact) { user.contact = req.body.contact; }
+            if (req.body.pic) { user.pic = req.body.pic; }
+            if (req.body.bio) { user.bio = req.body.bio; }
+            if (req.body.requests) {
+                user.requests.sent = req.body.requests.sent;
+                user.requests.received = req.body.requests.received;
             }
-        });
+
+            // Clone user object & remove _id field for updating
+            // The user object contains a new _id value, we want to update only the other field values
+            let userClone = JSON.parse(JSON.stringify(user));
+            delete userClone._id;
+
+            // Check if username already exists AND is not same as previous username
+            User.findOne({ 'username': user.username })
+            .exec(function(err, results) {
+                if (err) { return next(err); }
+                else if (results && results.username != req.params.username) {
+                    res.json({ message: 'Username already exists.' });
+                } else {
+                    // Hash password
+                    bcrypt.hash(user.password, 10, (err, hashedPassword) => {
+                        if (err) { return next(err); }
+                        userClone.password = hashedPassword;
+
+                        // Update user info from database
+                        User.findOneAndUpdate(
+                            { 'username': req.params.username }, // Filter
+                            userClone, // New values
+                            { 'fields': { 'password': 0 }, // Exclude password from results
+                              'new': true },
+                            function(err, results) {
+                                if (err) { return next(err); }
+
+                                // Update token
+                                const token = jwt.sign({ info: results }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
+                                res.json({ user: results, token, message: 'Success' });
+                            }
+                        );
+                    });
+                }
+            });
+        }
     }
 ];
 
