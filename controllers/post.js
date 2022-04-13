@@ -152,14 +152,9 @@ exports.likePost = [
         Post.findByIdAndUpdate(req.params.postId, { '$addToSet': { 'likes': req.user.info._id } }, { new: true }, function(err, post) {
             if (err) { return next(err); }
 
-            // Add Post id to User liked posts array
-            User.findByIdAndUpdate(req.user.info._id, { '$addToSet': { 'likes.posts': req.params.postId } }, { new: true }, function(err, user) {
-                if (err) { return next(err); }
-                return res.json({
-                    post,
-                    user,
-                    message: 'Success'
-                });
+            return res.json({
+                post,
+                message: 'Success'
             });
         });
     }
@@ -173,14 +168,9 @@ exports.unlikePost = [
         Post.findByIdAndUpdate(req.params.postId, { '$pull': { 'likes': req.user.info._id } }, { new: true }, function(err, post) {
             if (err) { return next(err); }
 
-            // Remove Post id from User liked posts array
-            User.findByIdAndUpdate(req.user.info._id, { '$pull': { 'likes.posts': req.params.postId } }, { new: true }, function(err, user) {
-                if (err) { return next(err); }
-                return res.json({
-                    post,
-                    user,
-                    message: 'Success'
-                });
+            return res.json({
+                post,
+                message: 'Success'
             });
         });
     }

@@ -66,10 +66,6 @@ exports.createUser = [
                 sent: [],
                 received: []
             },
-            likes: {
-                posts: [],
-                comments: []
-            },
             public: req.body.public,
             admin: req.body.admin
         });
@@ -100,10 +96,6 @@ exports.createUser = [
                                 requests: {
                                     sent: user.requests.sent,
                                     received: user.requests.received
-                                },
-                                likes: {
-                                    posts: user.likes.posts,
-                                    comments: user.likes.comments
                                 },
                                 public: user.public,
                                 admin: user.admin
@@ -138,10 +130,6 @@ exports.updateUser = [
         if (req.body.requests) {
             user.requests.sent = req.body.requests.sent;
             user.requests.received = req.body.requests.received;
-        }
-        if (req.body.likes) {
-            user.likes.posts = req.body.likes.posts;
-            user.likes.comments = req.body.likes.comments;
         }
 
         // Clone user object & remove _id field for updating
@@ -336,7 +324,7 @@ exports.getFriends = [
         // Find all Users where their id is in User's Friends array
         User.find(
         { '_id': { '$in': res.locals.friends } },
-        { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'likes': 0, 'public': 0, 'admin': 0 },
+        { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
         function(err, results) {
             if (err) { next(err); }
             res.json(results);
@@ -356,7 +344,7 @@ exports.getRequests = function(req, res, next) {
     // Find all Users where their id is in User's Sent/Received Requests array
     User.find(
     { '_id': { '$in': requests } },
-    { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'likes': 0, 'public': 0, 'admin': 0 },
+    { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
     function(err, results) {
         if (err) { next(err); }
         res.json(results);
