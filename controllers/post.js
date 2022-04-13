@@ -146,7 +146,6 @@ exports.updatePost = [
 
 // Like Post
 exports.likePost = [
-    // Process Post Like
     (req, res, next) => {
         // Add User id to Post likes array
         Post.findByIdAndUpdate(req.params.postId, { '$addToSet': { 'likes': req.user.info._id } }, { new: true }, function(err, post) {
@@ -162,7 +161,6 @@ exports.likePost = [
 
 // Unlike Post
 exports.unlikePost = [
-    // Process Post Unlike
     (req, res, next) => {
         // Remove User id from Post likes array
         Post.findByIdAndUpdate(req.params.postId, { '$pull': { 'likes': req.user.info._id } }, { new: true }, function(err, post) {
