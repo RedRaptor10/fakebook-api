@@ -42,6 +42,11 @@ router.get('/users/:userId',
     passport.authenticate('jwt', { session: false }),
     postController.getUserPosts);
 
+// Get Timeline Posts
+router.get('/timeline/:userId',
+    passport.authenticate('jwt', { session: false }),
+    postController.getTimelinePosts);
+
 // Like Post
 router.post('/:postId/like',
     passport.authenticate('jwt', { session: false }),

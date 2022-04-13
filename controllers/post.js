@@ -50,10 +50,35 @@ exports.getUserPosts = function(req, res, next) {
     if (req.query.order == 'desc') { orderby = 'descending'; }
 
     Post.find({ 'author': req.params.userId })
+    .sort({ [sortby]: orderby }) // Sort by (Default: id in ascending order)
     .populate('author', { 'password': 0 }) // Exclude password from db query
     .exec(function(err, results) {
         if (err) { return next(err); }
         res.json(results);
+    });
+};
+
+// Get Timeline Posts
+exports.getTimelinePosts = function(req, res, next) {
+    let sortby = '_id';
+    let orderby = 'ascending';
+
+    if (req.query.sort == 'date') { sortby = 'date'; }
+    if (req.query.order == 'desc') { orderby = 'descending'; }
+
+    // Get User
+    User.findOne({ '_id': req.params.userId })
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+
+        // Get all Posts by User or User's friends
+        Post.find({'$or': [{ 'author': req.params.userId }, { 'author': { '$in': results.friends } }]})
+        .sort({ [sortby]: orderby }) // Sort by (Default: id in ascending order)
+        .populate('author', { 'password': 0 }) // Exclude password from db query
+        .exec(function(err, results) {
+            if (err) { return next(err); }
+            res.json(results);
+        });
     });
 };
 
