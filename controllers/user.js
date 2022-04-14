@@ -3,6 +3,8 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nconf = require('nconf');
+const multer = require('multer');
+const fs = require('fs');
 
 // Set up nconf
 nconf.argv().env().file({ file: './config.json' });
@@ -132,7 +134,7 @@ exports.updateUser = [
         if (!errors.isEmpty()) {
             res.json({ username: req.body.username, errors: errors.array() });
         } else {
-                const user = new User({
+            const user = new User({
                 email: req.body.email,
                 username: req.body.username,
                 password: req.body.password,
@@ -143,7 +145,6 @@ exports.updateUser = [
                 admin: req.body.admin
             });
 
-            if (req.body.pic) { user.pic = req.body.pic; }
             if (req.body.requests) {
                 user.requests.sent = req.body.requests.sent;
                 user.requests.received = req.body.requests.received;
@@ -372,3 +373,74 @@ exports.getRequests = function(req, res, next) {
         res.json(results);
     });
 };
+
+// Upload Photo
+exports.upload = [
+    // Process Upload
+    (req, res, next) => {
+        const upload = multer({
+            dest: 'public/uploads/profile-photos/' + req.user.info._id,
+            fileFilter: (req, file, cb) => {
+                if (
+                    file.mimetype === 'image/jpeg' ||
+                    file.mimetype === 'image/png' ||
+                    file.mimetype === 'image/gif' ||
+                    file.mimetype === 'image/webp' ||
+                    file.mimetype === 'image/bmp' ||
+                    file.mimetype === 'image/tiff'
+                ) { cb(null, true) }
+                else { cb(new Error('Not a valid image file.')) }
+            }
+        });
+
+        upload.single('photo')(req, res, function(err) {
+            if (err) {
+                res.json({ errors: [{ msg: err.message }] });
+            } else {
+                next(); // Valid image file, continue middleware chain
+            };
+        });
+    },
+
+    // Validate Photo
+    (req, res, next) => {
+        if (!req.file) {
+            res.json({ errors: [{ msg: 'No file selected.' }] });
+        } else {
+            next();
+        }
+    },
+
+    // Save Image id to Database
+    (req, res, next) => {
+        let prevPhoto = '';
+
+        // Get previous photo
+        User.findOne({ 'username' : req.params.username }, function(err, results) {
+            if (err) { return next(err); }
+            if (results.pic) { prevPhoto = results.pic; }
+
+            User.findOneAndUpdate(
+                { 'username': req.params.username },
+                {'$set': { 'pic': req.file.filename } },
+                { 'fields': { 'password': 0 }, // Exclude password from results
+                  'new': true },
+                function(err, user) {
+                    if (err) { return next(err); }
+
+                    // Delete previous photo
+                    if (prevPhoto != '') {
+                        fs.unlink('public/uploads/profile-photos/' + req.user.info._id + '/' + prevPhoto, (err) => {
+                            if (err) { return console.log(err) }
+                        });
+                    }
+
+                    // Update token
+                    const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
+                    res.json({ user, token, message: 'Success' });
+                }
+            );
+        });
+    }
+];
