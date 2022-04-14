@@ -143,9 +143,7 @@ exports.updateUser = [
                 admin: req.body.admin
             });
 
-            if (req.body.contact) { user.contact = req.body.contact; }
             if (req.body.pic) { user.pic = req.body.pic; }
-            if (req.body.bio) { user.bio = req.body.bio; }
             if (req.body.requests) {
                 user.requests.sent = req.body.requests.sent;
                 user.requests.received = req.body.requests.received;
@@ -348,7 +346,7 @@ exports.getFriends = [
         // Find all Users where their id is in User's Friends array
         User.find(
         { '_id': { '$in': res.locals.friends } },
-        { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
+        { 'email': 0, 'password': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
         function(err, results) {
             if (err) { next(err); }
             res.json(results);
@@ -368,7 +366,7 @@ exports.getRequests = function(req, res, next) {
     // Find all Users where their id is in User's Sent/Received Requests array
     User.find(
     { '_id': { '$in': requests } },
-    { 'email': 0, 'password': 0, 'contact': 0, 'bio': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
+    { 'email': 0, 'password': 0, 'friends': 0, 'requests': 0, 'public': 0, 'admin': 0 },
     function(err, results) {
         if (err) { next(err); }
         res.json(results);
