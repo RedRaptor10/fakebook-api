@@ -7,7 +7,7 @@ var UserSchema = new Schema({
     password: { type: String, minLength: 5, required: true },
     firstName: { type: String, minLength: 1, maxLength: 100, required: true },
     lastName: { type: String, minLength: 1, maxLength: 100, required: true },
-    pic: { type: String },
+    photo: { type: String },
     friends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     requests: {
         sent: [{ type: Schema.Types.ObjectId, ref: 'User' }],
