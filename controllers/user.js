@@ -418,11 +418,11 @@ exports.upload = [
         // Get previous photo
         User.findOne({ 'username' : req.params.username }, function(err, results) {
             if (err) { return next(err); }
-            if (results.pic) { prevPhoto = results.pic; }
+            if (results.photo) { prevPhoto = results.photo; }
 
             User.findOneAndUpdate(
                 { 'username': req.params.username },
-                {'$set': { 'pic': req.file.filename } },
+                { '$set': { 'photo': req.file.filename } },
                 { 'fields': { 'password': 0 }, // Exclude password from results
                   'new': true },
                 function(err, user) {
@@ -444,3 +444,36 @@ exports.upload = [
         });
     }
 ];
+
+// Delete User Photo
+exports.deletePhoto = (req, res, next) => {
+    let prevPhoto = '';
+
+    // Get previous photo
+    User.findOne({ 'username' : req.params.username }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.photo) { prevPhoto = results.photo; }
+
+        User.findOneAndUpdate(
+            { 'username': req.params.username },
+            { '$unset': { 'photo': '' } },
+            { 'fields': { 'password': 0 }, // Exclude password from results
+              'new': true },
+            function(err, user) {
+                if (err) { return next(err); }
+
+                // Delete previous photo
+                if (prevPhoto != '') {
+                    fs.unlink('public/uploads/profile-photos/' + req.user.info._id + '/' + prevPhoto, (err) => {
+                        if (err) { return console.log(err) }
+                    });
+                }
+
+                // Update token
+                const token = jwt.sign({ info: user }, nconf.get('JWT_SECRET'), { expiresIn: nconf.get('JWT_EXP') });
+
+                res.json({ user, token, message: 'Success' });
+            }
+        );
+    });
+};

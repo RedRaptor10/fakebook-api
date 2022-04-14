@@ -23,17 +23,23 @@ router.post('/:username/update',
     userController.auth, // Check if user is an admin or self
     userController.updateUser);
 
-// Update User Photo
-router.post('/:username/upload',
-    passport.authenticate('jwt', { session: false }),
-    userController.auth,
-    userController.upload);
-
 // Delete User
 router.post('/:username/delete',
     passport.authenticate('jwt', { session: false }),
     userController.auth,
     userController.deleteUser);
+
+// Upload User Photo
+router.post('/:username/upload',
+    passport.authenticate('jwt', { session: false }),
+    userController.auth,
+    userController.upload);
+
+// Delete User Photo
+router.post('/:username/delete-photo',
+    passport.authenticate('jwt', { session: false }),
+    userController.auth,
+    userController.deletePhoto);
 
 // Get Friends
 router.get('/:username/get-friends',
