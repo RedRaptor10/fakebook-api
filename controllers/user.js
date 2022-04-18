@@ -56,59 +56,76 @@ exports.getUserFromId = function(req, res, next) {
 
 // Create User
 exports.createUser = [
+    // Validate and sanitize fields
+    body('email').trim().isLength({ min: 1 }).escape().withMessage('Email required.').isEmail().withMessage('Not a valid email.'),
+    body('username').trim().isLength({ min: 1 }).escape().withMessage('Username required.')
+        .isLength({ max: 100 }).withMessage('Username cannot exceed 100 characters.'),
+    body('password', 'Password required.').trim().isLength({ min: 1 }).escape(),
+    body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First Name required.')
+        .isLength({ max: 100 }).withMessage('First Name cannot exceed 100 characters.'),
+    body('lastName').trim().isLength({ min: 1 }).escape().withMessage('Last Name required.')
+        .isLength({ max: 100 }).withMessage('Last Name cannot exceed 100 characters.'),
+
     // Process Sign Up
     (req, res, next) => {
-        const user = new User({
-            email: req.body.email,
-            username: req.body.username,
-            password: req.body.password,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            friends: [],
-            requests: {
-                sent: [],
-                received: []
-            },
-            public: req.body.public,
-            admin: req.body.admin
-        });
+        // Extract the validation errors from request
+        const errors = validationResult(req);
 
-        // Check if username already exists
-        User.findOne({ 'username': user.username })
-        .exec(function(err, results) {
-            if (err) { return next(err); }
-            else if (results) {
-                res.json({ message: 'Username already exists.' });
-            } else {
-                // Hash password
-                bcrypt.hash(user.password, 10, (err, hashedPassword) => {
-                    if (err) { return next(err); }
-                    user.password = hashedPassword;
+        if (!errors.isEmpty()) {
+            res.json({ errors: errors.array() });
+        } else {
+            const user = new User({
+                email: req.body.email,
+                username: req.body.username,
+                password: req.body.password,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                friends: [],
+                requests: {
+                    sent: [],
+                    received: []
+                },
+                public: req.body.public,
+                admin: req.body.admin
+            });
 
-                    // Save user info to database
-                    user.save(function(err) {
+            // Check if username already exists
+            User.findOne({ 'username': user.username })
+            .exec(function(err, results) {
+                if (err) { return next(err); }
+                else if (results) {
+                    res.json({ message: 'Username already exists.' });
+                } else {
+                    // Hash password
+                    bcrypt.hash(user.password, 10, (err, hashedPassword) => {
                         if (err) { return next(err); }
-                        res.json({
-                            user: {
-                                _id: user._id,
-                                email: user.email,
-                                username: user.username,
-                                firstName: user.firstName,
-                                lastName: user.lastName,
-                                friends: user.friends,
-                                requests: {
-                                    sent: user.requests.sent,
-                                    received: user.requests.received
+                        user.password = hashedPassword;
+
+                        // Save user info to database
+                        user.save(function(err) {
+                            if (err) { return next(err); }
+                            res.json({
+                                user: {
+                                    _id: user._id,
+                                    email: user.email,
+                                    username: user.username,
+                                    firstName: user.firstName,
+                                    lastName: user.lastName,
+                                    friends: user.friends,
+                                    requests: {
+                                        sent: user.requests.sent,
+                                        received: user.requests.received
+                                    },
+                                    public: user.public,
+                                    admin: user.admin
                                 },
-                                public: user.public,
-                                admin: user.admin
-                            },
-                            message: 'Success'
+                                message: 'Success'
+                            });
                         });
                     });
-                });
-            }
-        });
+                }
+            });
+        }
     }
 ];
 

@@ -9,7 +9,7 @@ nconf.argv().env().file({ file: './config.json' });
 // Log In
 exports.logIn = [
     // Validate and sanitize fields
-    body('email').trim().isLength({ min: 1 }).withMessage('Email required.').isEmail().withMessage('Not a valid email.').escape(),
+    body('email').trim().isLength({ min: 1 }).escape().withMessage('Email required.').isEmail().withMessage('Not a valid email.'),
     body('password', 'Password required.').trim().isLength({ min: 1 }).escape(),
 
     // Process Log In
