@@ -7,14 +7,13 @@ Odinbook API server created in NodeJS using Express through [TheOdinProject](htt
 **Client** - [View Demo](https://redraptor10.github.io/odinbook/) | [View Repo](https://github.com/RedRaptor10/odinbook/)
 
 # User Credentials
-- Username: admin
-- Password: admin
 
-- Username: johndoe
-- Password: johndoe
+To use the app, log-in with any of the existing accounts below or create your own account.
 
-- Username: janedoe
-- Password: janedoe
+- Email: admin@admin.com | Password: admin
+- Email: test@test.com | Password: testuser
+- Email: johndoe@johndoe.com | Password: johndoe
+- Email: janedoe@janedoe.com | Password: janedoe
 
 # Features
 
@@ -24,6 +23,7 @@ Odinbook API server created in NodeJS using Express through [TheOdinProject](htt
 - Secure user data by hashing passwords
 - View timeline of user and friend posts
 - Create posts and comments
+- Like posts and comments
 - Send friend requests
 - Upload profile picture
 - Set profile/post visibility to public or private
