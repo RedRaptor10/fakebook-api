@@ -7,17 +7,14 @@ Odinbook API server created in NodeJS using Express through [TheOdinProject](htt
 **Client** - [View Demo](https://redraptor10.github.io/odinbook/) | [View Repo](https://github.com/RedRaptor10/odinbook/)
 
 # User Credentials
-Name: Admin
-Username: admin
-Password: admin
+- Username: admin
+- Password: admin
 
-Name: John Doe
-Username: johndoe
-Password: johndoe
+- Username: johndoe
+- Password: johndoe
 
-Name: Jane Doe
-Username: janedoe
-Password: janedoe
+- Username: janedoe
+- Password: janedoe
 
 # Features
 
