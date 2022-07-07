@@ -1,10 +1,10 @@
-# Odinbook API
+# Fakebook API
 
-Odinbook API server created in NodeJS using Express through [TheOdinProject](https://www.theodinproject.com) online course. The purpose of this project is to create a fully-functional REST API back-end that can be called from any client front-end.
+Fakebook API server created in NodeJS using Express. The purpose of this project is to create a fully-functional REST API back-end that can be called from any client front-end.
 
-**Server** - [View Repo](https://github.com/RedRaptor10/odinbook-api/)
+**Server** - [View Repo](https://github.com/RedRaptor10/fakebook-api/)
 
-**Client** - [View Demo](https://redraptor10.github.io/odinbook/) | [View Repo](https://github.com/RedRaptor10/odinbook/)
+**Client** - [View Demo](https://redraptor10.github.io/fakebook/) | [View Repo](https://github.com/RedRaptor10/fakebook/)
 
 # User Credentials
 
