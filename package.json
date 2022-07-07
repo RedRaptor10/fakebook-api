@@ -1,12 +1,12 @@
 {
-  "name": "odinbook-api",
+  "name": "fakebook-api",
   "version": "0.0.0",
   "private": true,
   "engines": { "node": "15.6.0" },
   "scripts": {
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
-    "serverstart": "DEBUG=odinbook-api:* npm run devstart",
+    "serverstart": "DEBUG=fakebook-api:* npm run devstart",
     "test": "jest"
   },
   "dependencies": {

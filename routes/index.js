@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 
-// Controller
+// Controllers
 const indexController = require('../controllers/index');
 const userController = require('../controllers/user');
 
@@ -16,9 +16,7 @@ router.post('/log-in', indexController.logIn);
 router.get('/log-out', (req, res) => { req.logout(); });
 
 // Get Friend Requests
-router.get('/get-requests/:type',
-    passport.authenticate('jwt', { session: false }),
-    userController.getRequests);
+router.get('/get-requests/:type', passport.authenticate('jwt', { session: false }), userController.getRequests);
 
 // Test (Should only be accessible if logged in)
 router.get('/test', passport.authenticate('jwt', { session: false }), (req, res) => { res.json('Accessible route as you are logged in.') });
