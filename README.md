@@ -2,18 +2,15 @@
 
 Fakebook API server created in NodeJS using Express. The purpose of this project is to create a fully-functional REST API back-end that can be called from any client front-end.
 
-**Server** - [View Repo](https://github.com/RedRaptor10/fakebook-api/)
-
-**Client** - [View Demo](https://redraptor10.github.io/fakebook/) | [View Repo](https://github.com/RedRaptor10/fakebook/)
+**Client** - [View Repo](https://github.com/RedRaptor10/fakebook/) | [View Demo](https://redraptor10.github.io/fakebook/)
 
 # User Credentials
 
-To use the app, click on "Use a Sample Account". You may also log-in with any of the existing accounts below or create your own account.
+To use the app, click on "Use a Sample Account". You may also log in with any of the existing accounts below or create your own account.
 
-- Email: admin@admin.com | Password: admin
-- Email: test@test.com | Password: testuser
 - Email: johndoe@johndoe.com | Password: johndoe
 - Email: janedoe@janedoe.com | Password: janedoe
+- Email: test@test.com | Password: testuser
 
 # Features
 
