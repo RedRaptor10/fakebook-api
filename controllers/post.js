@@ -82,6 +82,27 @@ exports.getTimelinePosts = function(req, res, next) {
     });
 };
 
+// Get Search Posts
+exports.getSearchPosts = function(req, res, next) {
+    let sortby = 'score';
+    let orderby = { '$meta': 'textScore' };
+
+    if (req.query.sort == 'id') { sortby = '_id'; }
+    if (req.query.sort == 'date') { sortby = 'date'; }
+    if (req.query.order == 'asc') { orderby = 'ascending'; }
+    if (req.query.order == 'desc') { orderby = 'descending'; }
+
+    Post.find(
+        { '$text': { '$search': req.query.q } },
+        { 'score': { '$meta': 'textScore' } })
+    .sort({ [sortby]: orderby }) // Sort by (Default: score/relevance in score/relevance)
+    .populate('author', { 'password': 0 }) // Exclude password from db query
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        res.json(results);
+    });
+};
+
 // Get Post
 exports.getPost = function(req, res, next) {
     Post.findOne({ '_id': req.params.postId })
