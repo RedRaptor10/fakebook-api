@@ -54,6 +54,27 @@ exports.getUserFromId = function(req, res, next) {
     });
 };
 
+// Get Search Users
+exports.getSearchUsers = function(req, res, next) {
+    let sortby = 'score';
+    let orderby = { '$meta': 'textScore' };
+
+    if (req.query.sort == 'id') { sortby = '_id'; }
+    if (req.query.sort == 'date') { sortby = 'date'; }
+    if (req.query.order == 'asc') { orderby = 'ascending'; }
+    if (req.query.order == 'desc') { orderby = 'descending'; }
+
+    User.find(
+        { '$text': { '$search': req.query.q } },
+        { 'score': { '$meta': 'textScore' } },
+        { 'password': 0 }) // Exclude password from db query
+    .sort({ [sortby]: orderby }) // Sort by (Default: score/relevance in score/relevance)
+    .exec(function(err, results) {
+        if (err) { return next(err); }
+        res.json(results);
+    });
+};
+
 // Create User
 exports.createUser = [
     // Validate and sanitize fields
