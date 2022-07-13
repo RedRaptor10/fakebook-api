@@ -24,6 +24,8 @@ To use the app, click on "Use a Sample Account". You may also log in with any of
 - Send friend requests
 - Upload profile picture
 - Set profile/post visibility to public or private
+- Search for posts/users
+- Dark mode
 
 # Technologies
 
