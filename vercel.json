@@ -5,31 +5,5 @@
       "src": "app.js",
       "use": "@vercel/node"
     }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "app.js"
-    },
-    {
-      "src": "/api",
-      "dest": "routes/index.js"
-    },
-    {
-      "src": "/api/users",
-      "dest": "routes/users.js"
-    },
-    {
-      "src": "/api/posts",
-      "dest": "routes/posts.js"
-    },
-    {
-      "src": "/api/comments",
-      "dest": "routes/comments.js"
-    },
-    {
-      "src": "/api/search",
-      "dest": "routes/search.js"
-    }
   ]
 }
