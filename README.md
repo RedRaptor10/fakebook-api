@@ -2,6 +2,8 @@
 
 Fakebook API server created in NodeJS using Express. The purpose of this project is to create a fully-functional REST API back-end that can be called from any client front-end.
 
+Backend API hosted on [Render](https://render.com/) (previously Heroku).
+
 **Client** - [View Repo](https://github.com/RedRaptor10/fakebook/) | [View Demo](https://redraptor10.github.io/fakebook/)
 
 # User Credentials
